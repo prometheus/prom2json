@@ -59,7 +59,7 @@ TODO: come up with a nifty query, not just ".".
 ```json
 [
   {
-    "name": "http_request_duration_microseconds"
+    "name": "http_request_duration_microseconds",
     "help": "The HTTP request latencies in microseconds.",
     "type": "SUMMARY",
     "metrics": [
@@ -68,40 +68,40 @@ TODO: come up with a nifty query, not just ".".
           "method": "get",
           "handler": "prometheus",
           "code": "200"
-        }
+        },
         "quantiles": {
           "0.99": 67542.292,
           "0.9": 23902.678,
           "0.5": 6865.718
         },
         "count": 743,
-        "sum": 6936936.447000001,
+        "sum": 6936936.447000001
       },
       {
         "labels": {
           "method": "get",
           "handler": "prometheus",
           "code": "400"
-        }
+        },
         "quantiles": {
           "0.99": 3542.9,
           "0.9": 1202.3,
           "0.5": 1002.8
         },
         "count": 4,
-        "sum": 345.01,
+        "sum": 345.01
       }
-    ],
+    ]
   },
   {
-    "name": "roshi_select_call_count"
+    "name": "roshi_select_call_count",
     "help": "How many select calls have been made.",
     "type": "COUNTER",
     "metrics": [
       {
         "value": 1063110
       }
-    ],
+    ]
   }
 ]
 ```

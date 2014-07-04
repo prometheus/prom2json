@@ -60,6 +60,10 @@ TODO: come up with a nifty query, not just ".".
 
 # JSON format
 
+Note that all numbers are encoded as strings. Some parsers want it
+that way. Also, Prometheus allows sample values like `NaN` or `+Inf`,
+which cannot be encoded as JSON numbers.
+
 ```json
 [
   {
@@ -74,12 +78,12 @@ TODO: come up with a nifty query, not just ".".
           "code": "200"
         },
         "quantiles": {
-          "0.99": 67542.292,
-          "0.9": 23902.678,
-          "0.5": 6865.718
+          "0.99": "67542.292",
+          "0.9": "23902.678",
+          "0.5": "6865.718"
         },
-        "count": 743,
-        "sum": 6936936.447000001
+        "count": "743",
+        "sum": "6936936.447000001"
       },
       {
         "labels": {
@@ -88,12 +92,12 @@ TODO: come up with a nifty query, not just ".".
           "code": "400"
         },
         "quantiles": {
-          "0.99": 3542.9,
-          "0.9": 1202.3,
-          "0.5": 1002.8
+          "0.99": "3542.9",
+          "0.9": "1202.3",
+          "0.5": "1002.8"
         },
-        "count": 4,
-        "sum": 345.01
+        "count": "4",
+        "sum": "345.01"
       }
     ]
   },
@@ -103,7 +107,7 @@ TODO: come up with a nifty query, not just ".".
     "type": "COUNTER",
     "metrics": [
       {
-        "value": 1063110
+        "value": "1063110"
       }
     ]
   }

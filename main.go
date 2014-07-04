@@ -1,3 +1,16 @@
+// Copyright 2014 Prometheus Team
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
 import (
@@ -28,14 +41,14 @@ type metricFamily struct {
 // metric is for all "single value" metrics.
 type metric struct {
 	Labels map[string]string `json:"labels,omitempty"`
-	Value  float64           `json:"value"`
+	Value  string            `json:"value"`
 }
 
 type summary struct {
-	Labels    map[string]string  `json:"labels,omitempty"`
-	Quantiles map[string]float64 `json:"quantiles,omitempty"`
-	Count     uint64             `json:"count"`
-	Sum       float64            `json:"sum"`
+	Labels    map[string]string `json:"labels,omitempty"`
+	Quantiles map[string]string `json:"quantiles,omitempty"`
+	Count     string            `json:"count"`
+	Sum       string            `json:"sum"`
 }
 
 func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
@@ -51,13 +64,13 @@ func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
 			mf.Metrics[i] = summary{
 				Labels:    makeLabels(m),
 				Quantiles: makeQuantiles(m),
-				Count:     m.GetSummary().GetSampleCount(),
-				Sum:       m.GetSummary().GetSampleSum(),
+				Count:     fmt.Sprint(m.GetSummary().GetSampleCount()),
+				Sum:       fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else {
 			mf.Metrics[i] = metric{
 				Labels: makeLabels(m),
-				Value:  getValue(m),
+				Value:  fmt.Sprint(getValue(m)),
 			}
 		}
 	}
@@ -85,10 +98,10 @@ func makeLabels(m *dto.Metric) map[string]string {
 	return result
 }
 
-func makeQuantiles(m *dto.Metric) map[string]float64 {
-	result := map[string]float64{}
+func makeQuantiles(m *dto.Metric) map[string]string {
+	result := map[string]string{}
 	for _, q := range m.GetSummary().Quantile {
-		result[fmt.Sprint(q.GetQuantile())] = q.GetValue()
+		result[fmt.Sprint(q.GetQuantile())] = fmt.Sprint(q.GetValue())
 	}
 	return result
 }

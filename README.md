@@ -41,7 +41,7 @@ This will dump the JSON to `stdout`. Note that the dumped JSON is
 _not_ using the deprecated JSON format as specified in the
 [Prometheus exposition format
 reference](https://docs.google.com/document/d/1ZjyKiKxZV83VI9ZKAXRGKaUKK2BIWCT7oiGBKDBpjEY/edit?usp=sharing). The
-created JSON uses a format much closer in structure to the procotol
+created JSON uses a format much closer in structure to the protocol
 buffer format. It is only used by the `prom2json` tool and has no
 significance elsewhere. See below for a description.
 

@@ -21,3 +21,8 @@ _testmain.go
 
 *.exe
 *.test
+
+# Build artifacts
+.build
+/prom2json
+*-stamp

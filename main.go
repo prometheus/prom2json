@@ -23,7 +23,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/matttproud/golang_protobuf_extensions/ext"
+	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/client_golang/text"
 
 	dto "github.com/prometheus/client_model/go"
@@ -128,7 +128,7 @@ func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 		params["proto"] == "io.prometheus.client.MetricFamily" {
 		for {
 			mf := &dto.MetricFamily{}
-			if _, err = ext.ReadDelimited(resp.Body, mf); err != nil {
+			if _, err = pbutil.ReadDelimited(resp.Body, mf); err != nil {
 				if err == io.EOF {
 					break
 				}

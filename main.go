@@ -51,6 +51,13 @@ type summary struct {
 	Sum       string            `json:"sum"`
 }
 
+type histogram struct {
+	Labels  map[string]string `json:"labels,omitempty"`
+	Buckets map[string]string `json:"buckets,omitempty"`
+	Count   string            `json:"count"`
+	Sum     string            `json:"sum"`
+}
+
 func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
 	mf := &metricFamily{
 		Name:    dtoMF.GetName(),
@@ -58,14 +65,20 @@ func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
 		Type:    dtoMF.GetType().String(),
 		Metrics: make([]interface{}, len(dtoMF.Metric)),
 	}
-	isSummary := dtoMF.GetType() == dto.MetricType_SUMMARY
 	for i, m := range dtoMF.Metric {
-		if isSummary {
+		if dtoMF.GetType() == dto.MetricType_SUMMARY {
 			mf.Metrics[i] = summary{
 				Labels:    makeLabels(m),
 				Quantiles: makeQuantiles(m),
 				Count:     fmt.Sprint(m.GetSummary().GetSampleCount()),
 				Sum:       fmt.Sprint(m.GetSummary().GetSampleSum()),
+			}
+		} else if dtoMF.GetType() == dto.MetricType_HISTOGRAM {
+			mf.Metrics[i] = histogram{
+				Labels:  makeLabels(m),
+				Buckets: makeBuckets(m),
+				Count:   fmt.Sprint(m.GetHistogram().GetSampleCount()),
+				Sum:     fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else {
 			mf.Metrics[i] = metric{
@@ -102,6 +115,14 @@ func makeQuantiles(m *dto.Metric) map[string]string {
 	result := map[string]string{}
 	for _, q := range m.GetSummary().Quantile {
 		result[fmt.Sprint(q.GetQuantile())] = fmt.Sprint(q.GetValue())
+	}
+	return result
+}
+
+func makeBuckets(m *dto.Metric) map[string]string {
+	result := map[string]string{}
+	for _, b := range m.GetHistogram().Bucket {
+		result[fmt.Sprint(b.GetUpperBound())] = fmt.Sprint(b.GetCumulativeCount())
 	}
 	return result
 }

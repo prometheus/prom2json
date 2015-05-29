@@ -17,7 +17,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime"
 	"net/http"
 	"os"
@@ -25,6 +24,7 @@ import (
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/client_golang/text"
+	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
 )

@@ -22,20 +22,20 @@ type Family struct {
 	Metrics []interface{} `json:"metrics,omitempty"` // Either metric or summary.
 }
 
-// metric is for all "single value" metrics.
-type metric struct {
+// Metric is for all "single value" metrics.
+type Metric struct {
 	Labels map[string]string `json:"labels,omitempty"`
 	Value  string            `json:"value"`
 }
 
-type summary struct {
+type Summary struct {
 	Labels    map[string]string `json:"labels,omitempty"`
 	Quantiles map[string]string `json:"quantiles,omitempty"`
 	Count     string            `json:"count"`
 	Sum       string            `json:"sum"`
 }
 
-type histogram struct {
+type Histogram struct {
 	Labels  map[string]string `json:"labels,omitempty"`
 	Buckets map[string]string `json:"buckets,omitempty"`
 	Count   string            `json:"count"`
@@ -51,21 +51,21 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 	}
 	for i, m := range dtoMF.Metric {
 		if dtoMF.GetType() == dto.MetricType_SUMMARY {
-			mf.Metrics[i] = summary{
+			mf.Metrics[i] = Summary{
 				Labels:    makeLabels(m),
 				Quantiles: makeQuantiles(m),
 				Count:     fmt.Sprint(m.GetSummary().GetSampleCount()),
 				Sum:       fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else if dtoMF.GetType() == dto.MetricType_HISTOGRAM {
-			mf.Metrics[i] = histogram{
+			mf.Metrics[i] = Histogram{
 				Labels:  makeLabels(m),
 				Buckets: makeBuckets(m),
 				Count:   fmt.Sprint(m.GetHistogram().GetSampleCount()),
 				Sum:     fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else {
-			mf.Metrics[i] = metric{
+			mf.Metrics[i] = Metric{
 				Labels: makeLabels(m),
 				Value:  fmt.Sprint(getValue(m)),
 			}

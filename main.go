@@ -14,7 +14,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"mime"
@@ -127,14 +129,33 @@ func makeBuckets(m *dto.Metric) map[string]string {
 	return result
 }
 
-func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
+func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, certificate string, key string) {
 	defer close(ch)
+	var transport *http.Transport
+	if certificate != "" && key != "" {
+		cert, err := tls.LoadX509KeyPair(certificate, key)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport = &http.Transport{TLSClientConfig: tlsConfig}
+	} else {
+		transport = &http.Transport{}
+	}
+	client := &http.Client{Transport: transport}
+	decodeContent(client, url, ch)
+}
+
+func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("creating GET request for URL %q failed: %s", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("executing GET request for URL %q failed: %s", url, err)
 	}
@@ -142,7 +163,6 @@ func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("GET request for URL %q returned HTTP status %s", url, resp.Status)
 	}
-
 	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&
 		params["encoding"] == "delimited" &&
@@ -173,15 +193,18 @@ func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 }
 
 func main() {
-	runtime.GOMAXPROCS(2)
-	if len(os.Args) != 2 {
+	runtime.GOMAXPROCS(5)
+	cert := flag.String("cert", "", "certificate file")
+	key := flag.String("key", "", "key file")
+	flag.Parse()
+	mfChan := make(chan *dto.MetricFamily, 1024)
+	if len(flag.Args()) != 1 {
 		log.Fatalf("Usage: %s METRICS_URL", os.Args[0])
 	}
-
-	mfChan := make(chan *dto.MetricFamily, 1024)
-
-	go fetchMetricFamilies(os.Args[1], mfChan)
-
+	if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
+		log.Fatalf("Usage: %s METRICS_URL\n with TLS client authentication: %s -cert=/path/to/certificate -key=/path/to/key METRICS_URL", os.Args[0], os.Args[0])
+	}
+	go fetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key)
 	result := []*metricFamily{}
 	for mf := range mfChan {
 		result = append(result, newMetricFamily(mf))

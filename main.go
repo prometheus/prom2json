@@ -80,7 +80,7 @@ func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
 				Labels:  makeLabels(m),
 				Buckets: makeBuckets(m),
 				Count:   fmt.Sprint(m.GetHistogram().GetSampleCount()),
-				Sum:     fmt.Sprint(m.GetSummary().GetSampleSum()),
+				Sum:     fmt.Sprint(m.GetHistogram().GetSampleSum()),
 			}
 		} else {
 			mf.Metrics[i] = metric{

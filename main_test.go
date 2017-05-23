@@ -180,7 +180,7 @@ var tcs = []testCase{
 						"1e+06":  "5",
 					},
 					Count: "1",
-					Sum:   "0",
+					Sum:   "2",
 				},
 			},
 		},

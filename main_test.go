@@ -7,21 +7,22 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	dto "github.com/prometheus/client_model/go"
+	"github.com/qnib/prom2json/lib"
 )
 
 type testCase struct {
 	name         string
 	timestamp    int64
-	metricPrefix string
-	metricFamily *dto.MetricFamily
-	output       *metricFamily
+	mPrefix string
+	mFamily *dto.MetricFamily
+	output       *metric.Family
 }
 
 var tcs = []testCase{
 	testCase{
 		name:      "test counter",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("counter1"),
 			Type: metricTypePtr(dto.MetricType_COUNTER),
 			Metric: []*dto.Metric{
@@ -62,7 +63,7 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &metric.Family{
 			Name: "counter1",
 			Help: "",
 			Type: "COUNTER",
@@ -96,7 +97,7 @@ var tcs = []testCase{
 	testCase{
 		name:      "test summaries",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("summary1"),
 			Type: metricTypePtr(dto.MetricType_SUMMARY),
 			Metric: []*dto.Metric{
@@ -118,7 +119,7 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &metric.Family{
 			Name: "summary1",
 			Help: "",
 			Type: "SUMMARY",
@@ -142,7 +143,7 @@ var tcs = []testCase{
 	testCase{
 		name:      "test histograms",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("histogram1"),
 			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
 			Metric: []*dto.Metric{
@@ -164,7 +165,7 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &metric.Family{
 			Name: "histogram1",
 			Help: "",
 			Type: "HISTOGRAM",

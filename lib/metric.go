@@ -166,7 +166,7 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 }
 
 func (f *Family) ToOpenTSDBv1() string {
-	base := fmt.Sprintf("%s %d", f.Name, f.Time.Unix())
+	base := fmt.Sprintf("put %s %d", f.Name, f.Time.Unix())
 	res := []string{}
 	for _, item := range f.Metrics {
 		switch item.(type) {
@@ -182,7 +182,7 @@ func (f *Family) ToOpenTSDBv1() string {
 				for k,v := range m.Labels {
 					lab = append(lab, fmt.Sprintf("%s=%s", k,v))
 				}
-				met =  fmt.Sprintf("%s %f %s", base, val, strings.Join(lab,","))
+				met =  fmt.Sprintf("%s %f %s", base, val, strings.Join(lab," "))
 			}
 			res = append(res, met)
 		}

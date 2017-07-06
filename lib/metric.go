@@ -4,6 +4,8 @@ import (
     "fmt"
     "io"
     "mime"
+	"strings"
+	"time"
     "net/http"
 
     "github.com/matttproud/golang_protobuf_extensions/pbutil"
@@ -11,11 +13,13 @@ import (
     "github.com/prometheus/log"
 
     dto "github.com/prometheus/client_model/go"
+	"strconv"
 )
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
 
 // MetricFamily holds the family... :)
 type Family struct {
+	Time    time.Time
 	Name    string        `json:"name"`
 	Help    string        `json:"help"`
 	Type    string        `json:"type"`
@@ -44,6 +48,7 @@ type Histogram struct {
 
 func NewFamily(dtoMF *dto.MetricFamily) *Family {
 	mf := &Family{
+		Time: 	 time.Now(),
 		Name:    dtoMF.GetName(),
 		Help:    dtoMF.GetHelp(),
 		Type:    dtoMF.GetType().String(),
@@ -158,4 +163,29 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 			ch <- mf
 		}
 	}
+}
+
+func (f *Family) ToOpenTSDBv1() string {
+	base := fmt.Sprintf("%s %d", f.Name, f.Time.Unix())
+	res := []string{}
+	for _, item := range f.Metrics {
+		switch item.(type) {
+		case Metric:
+			m := item.(Metric)
+			val,err := strconv.ParseFloat(m.Value, 64)
+			if err != nil {
+				continue
+			}
+			met :=  fmt.Sprintf("%s %f", base, val)
+			if len(m.Labels) != 0 {
+				lab := []string{}
+				for k,v := range m.Labels {
+					lab = append(lab, fmt.Sprintf("%s=%s", k,v))
+				}
+				met =  fmt.Sprintf("%s %f %s", base, val, strings.Join(lab,","))
+			}
+			res = append(res, met)
+		}
+	}
+	return strings.Join(res, "\n")
 }

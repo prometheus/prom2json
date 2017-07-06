@@ -127,7 +127,10 @@ func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("GET request for URL %q returned HTTP status %s", url, resp.Status)
 	}
+	ParseResponse(resp, ch)
+}
 
+func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&
 		params["encoding"] == "delimited" &&

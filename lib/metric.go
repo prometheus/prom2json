@@ -165,6 +165,17 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	}
 }
 
+func (f *Family) AddLabel(key, val string) {
+	for i, item := range f.Metrics {
+		switch item.(type) {
+		case Metric:
+			m := item.(Metric)
+			m.Labels[key] = val
+			f.Metrics[i] = m
+		}
+	}
+}
+
 func (f *Family) ToOpenTSDBv1() string {
 	base := fmt.Sprintf("put %s %d", f.Name, f.Time.Unix())
 	res := []string{}

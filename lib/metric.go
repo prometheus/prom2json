@@ -1,67 +1,58 @@
-// Copyright 2014 Prometheus Team
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-package main
+package metric
 
 import (
-	"crypto/tls"
-	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"mime"
 	"net/http"
-	"os"
-	"runtime"
+	"strings"
+	"time"
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/common/expfmt"
-	"github.com/prometheus/common/log"
+	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
+	"strconv"
 )
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
 
-type metricFamily struct {
+// Family holds the s group of metrics/summary/histogram of a certain name...
+type Family struct {
+	Time    time.Time
 	Name    string        `json:"name"`
 	Help    string        `json:"help"`
 	Type    string        `json:"type"`
 	Metrics []interface{} `json:"metrics,omitempty"` // Either metric or summary.
 }
 
-// metric is for all "single value" metrics.
-type metric struct {
+// Metric is for all "single value" metrics.
+type Metric struct {
 	Labels map[string]string `json:"labels,omitempty"`
 	Value  string            `json:"value"`
 }
 
-type summary struct {
+// Summary describes a summary metric
+type Summary struct {
 	Labels    map[string]string `json:"labels,omitempty"`
 	Quantiles map[string]string `json:"quantiles,omitempty"`
 	Count     string            `json:"count"`
 	Sum       string            `json:"sum"`
 }
 
-type histogram struct {
+// Histogram holds buckets of metrics
+type Histogram struct {
 	Labels  map[string]string `json:"labels,omitempty"`
 	Buckets map[string]string `json:"buckets,omitempty"`
 	Count   string            `json:"count"`
 	Sum     string            `json:"sum"`
 }
 
-func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
-	mf := &metricFamily{
+// NewFamily consumes a MetricFamily and transforms it to the local Family type
+func NewFamily(dtoMF *dto.MetricFamily) *Family {
+	mf := &Family{
+		Time:    time.Now(),
 		Name:    dtoMF.GetName(),
 		Help:    dtoMF.GetHelp(),
 		Type:    dtoMF.GetType().String(),
@@ -69,21 +60,21 @@ func newMetricFamily(dtoMF *dto.MetricFamily) *metricFamily {
 	}
 	for i, m := range dtoMF.Metric {
 		if dtoMF.GetType() == dto.MetricType_SUMMARY {
-			mf.Metrics[i] = summary{
+			mf.Metrics[i] = Summary{
 				Labels:    makeLabels(m),
 				Quantiles: makeQuantiles(m),
 				Count:     fmt.Sprint(m.GetSummary().GetSampleCount()),
 				Sum:       fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else if dtoMF.GetType() == dto.MetricType_HISTOGRAM {
-			mf.Metrics[i] = histogram{
+			mf.Metrics[i] = Histogram{
 				Labels:  makeLabels(m),
 				Buckets: makeBuckets(m),
 				Count:   fmt.Sprint(m.GetHistogram().GetSampleCount()),
-				Sum:     fmt.Sprint(m.GetHistogram().GetSampleSum()),
+				Sum:     fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else {
-			mf.Metrics[i] = metric{
+			mf.Metrics[i] = Metric{
 				Labels: makeLabels(m),
 				Value:  fmt.Sprint(getValue(m)),
 			}
@@ -129,33 +120,15 @@ func makeBuckets(m *dto.Metric) map[string]string {
 	return result
 }
 
-func fetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, certificate string, key string) {
+// FetchMetricFamilies does stuff
+func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	defer close(ch)
-	var transport *http.Transport
-	if certificate != "" && key != "" {
-		cert, err := tls.LoadX509KeyPair(certificate, key)
-		if err != nil {
-			log.Fatal(err)
-		}
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		}
-		tlsConfig.BuildNameToCertificate()
-		transport = &http.Transport{TLSClientConfig: tlsConfig}
-	} else {
-		transport = &http.Transport{}
-	}
-	client := &http.Client{Transport: transport}
-	decodeContent(client, url, ch)
-}
-
-func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("creating GET request for URL %q failed: %s", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatalf("executing GET request for URL %q failed: %s", url, err)
 	}
@@ -163,6 +136,11 @@ func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily)
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("GET request for URL %q returned HTTP status %s", url, resp.Status)
 	}
+	ParseResponse(resp, ch)
+}
+
+// ParseResponse consumes an http.Response and pushes it to the MetricFamily channel
+func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&
 		params["encoding"] == "delimited" &&
@@ -192,29 +170,41 @@ func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily)
 	}
 }
 
-func main() {
-	runtime.GOMAXPROCS(5)
-	cert := flag.String("cert", "", "certificate file")
-	key := flag.String("key", "", "key file")
-	flag.Parse()
-	mfChan := make(chan *dto.MetricFamily, 1024)
-	if len(flag.Args()) != 1 {
-		log.Fatalf("Usage: %s METRICS_URL", os.Args[0])
+// AddLabel allows to add key/value labels to an already existing Family
+func (f *Family) AddLabel(key, val string) {
+	for i, item := range f.Metrics {
+		switch item.(type) {
+		case Metric:
+			m := item.(Metric)
+			m.Labels[key] = val
+			f.Metrics[i] = m
+		}
 	}
-	if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
-		log.Fatalf("Usage: %s METRICS_URL\n with TLS client authentication: %s -cert=/path/to/certificate -key=/path/to/key METRICS_URL", os.Args[0], os.Args[0])
+}
+
+// ToOpenTSDBv1 creates lines in OpenTSDB format (version1) from a Family
+// TODO: Only for metrics, summary and histogram has to be added
+func (f *Family) ToOpenTSDBv1() string {
+	base := fmt.Sprintf("put %s %d", f.Name, f.Time.Unix())
+	res := []string{}
+	for _, item := range f.Metrics {
+		switch item.(type) {
+		case Metric:
+			m := item.(Metric)
+			val, err := strconv.ParseFloat(m.Value, 64)
+			if err != nil {
+				continue
+			}
+			met := fmt.Sprintf("%s %f", base, val)
+			if len(m.Labels) != 0 {
+				lab := []string{}
+				for k, v := range m.Labels {
+					lab = append(lab, fmt.Sprintf("%s=%s", k, v))
+				}
+				met = fmt.Sprintf("%s %f %s", base, val, strings.Join(lab, " "))
+			}
+			res = append(res, met)
+		}
 	}
-	go fetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key)
-	result := []*metricFamily{}
-	for mf := range mfChan {
-		result = append(result, newMetricFamily(mf))
-	}
-	json, err := json.Marshal(result)
-	if err != nil {
-		log.Fatalln("error marshaling JSON:", err)
-	}
-	if _, err := os.Stdout.Write(json); err != nil {
-		log.Fatalln("error writing to stdout:", err)
-	}
-	fmt.Println()
+	return strings.Join(res, "\n")
 }

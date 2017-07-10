@@ -7,21 +7,22 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	dto "github.com/prometheus/client_model/go"
+	p2m "github.com/qnib/prom2json/lib"
 )
 
 type testCase struct {
-	name         string
-	timestamp    int64
-	metricPrefix string
-	metricFamily *dto.MetricFamily
-	output       *metricFamily
+	name      string
+	timestamp int64
+	mPrefix   string
+	mFamily   *dto.MetricFamily
+	output    *p2m.Family
 }
 
 var tcs = []testCase{
 	testCase{
 		name:      "test counter",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("counter1"),
 			Type: metricTypePtr(dto.MetricType_COUNTER),
 			Metric: []*dto.Metric{
@@ -62,29 +63,29 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &p2m.Family{
 			Name: "counter1",
 			Help: "",
 			Type: "COUNTER",
 			Metrics: []interface{}{
-				metric{
+				p2m.Metric{
 					Labels: map[string]string{
 						"tag2": "def",
 						"tag1": "abc",
 					},
 					Value: "1",
 				},
-				metric{
+				p2m.Metric{
 					Labels: map[string]string{},
 					Value:  "2",
 				},
-				metric{
+				p2m.Metric{
 					Labels: map[string]string{
 						"inf": "neg",
 					},
 					Value: "-Inf",
 				},
-				metric{
+				p2m.Metric{
 					Labels: map[string]string{
 						"inf": "pos",
 					},
@@ -96,7 +97,7 @@ var tcs = []testCase{
 	testCase{
 		name:      "test summaries",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("summary1"),
 			Type: metricTypePtr(dto.MetricType_SUMMARY),
 			Metric: []*dto.Metric{
@@ -118,12 +119,12 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &p2m.Family{
 			Name: "summary1",
 			Help: "",
 			Type: "SUMMARY",
 			Metrics: []interface{}{
-				summary{
+				p2m.Summary{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
@@ -142,7 +143,7 @@ var tcs = []testCase{
 	testCase{
 		name:      "test histograms",
 		timestamp: 123456789,
-		metricFamily: &dto.MetricFamily{
+		mFamily: &dto.MetricFamily{
 			Name: strPtr("histogram1"),
 			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
 			Metric: []*dto.Metric{
@@ -164,12 +165,12 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &metricFamily{
+		output: &p2m.Family{
 			Name: "histogram1",
 			Help: "",
 			Type: "HISTOGRAM",
 			Metrics: []interface{}{
-				histogram{
+				p2m.Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
@@ -180,7 +181,7 @@ var tcs = []testCase{
 						"1e+06":  "5",
 					},
 					Count: "1",
-					Sum:   "2",
+					Sum:   "0",
 				},
 			},
 		},
@@ -189,7 +190,7 @@ var tcs = []testCase{
 
 func TestConvertToMetricFamily(t *testing.T) {
 	for _, tc := range tcs {
-		output := newMetricFamily(tc.metricFamily)
+		output := p2m.NewFamily(tc.mFamily)
 		if !reflect.DeepEqual(tc.output, output) {
 			t.Errorf("test case %s: conversion to metricFamily format failed:\nexpected:\n%s\n\nactual:\n%s",
 				tc.name, spew.Sdump(tc.output), spew.Sdump(output))

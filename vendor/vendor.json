@@ -3,10 +3,16 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "ZKxETlJdB2XubMrZnXB0FQimVA8=",
+			"checksumSHA1": "sgmE/hUXVUwdJAymiswg+Gsjd/w=",
+			"path": "github.com/ChristianKniep/prom2json/lib",
+			"revision": "cbe55e5f56914fa8c8723eaf924167b708502858",
+			"revisionTime": "2017-07-10T13:02:14Z"
+		},
+		{
+			"checksumSHA1": "jwx/056iIPQnBIOoQ+AMsvPEM4g=",
 			"path": "github.com/Sirupsen/logrus",
-			"revision": "10f801ebc38b33738c9d17d50860f484a0988ff5",
-			"revisionTime": "2017-03-17T14:32:14Z"
+			"revision": "3d84af1ae04512e1bd4fe2b23fc6975db255f79c",
+			"revisionTime": "2017-07-09T17:36:25Z"
 		},
 		{
 			"checksumSHA1": "dvabztWVQX8f6oMLRyv4dLH+TGY=",
@@ -45,17 +51,23 @@
 			"revisionTime": "2017-02-20T10:38:46Z"
 		},
 		{
-			"checksumSHA1": "ZA4MLHNAP905WiAOLy4BBzmcuxM=",
-			"path": "github.com/prometheus/common/log",
-			"revision": "49fee292b27bfff7f354ee0f64e1bc4850462edf",
-			"revisionTime": "2017-02-20T10:38:46Z"
-		},
-		{
 			"checksumSHA1": "0LL9u9tfv1KPBjNEiMDP6q7lpog=",
 			"path": "github.com/prometheus/common/model",
 			"revision": "49fee292b27bfff7f354ee0f64e1bc4850462edf",
 			"revisionTime": "2017-02-20T10:38:46Z"
+		},
+		{
+			"checksumSHA1": "ziqY/FHc6pialrm9Xd2wUlS9f5w=",
+			"path": "github.com/prometheus/log",
+			"revision": "9a3136781e1ff7bc42736ba4acb81339b1422551",
+			"revisionTime": "2015-10-26T01:24:52Z"
+		},
+		{
+			"checksumSHA1": "To5eWGIjHQcw3pQ0N1uFepqaxmE=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "739734461d1c916b6c72a63d7efda2b27edb369f",
+			"revisionTime": "2017-07-07T11:51:12Z"
 		}
 	],
-	"rootPath": "github.com/prometheus/prom2json"
+	"rootPath": "github.com/ChristianKniep/prom2json"
 }

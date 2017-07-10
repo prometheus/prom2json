@@ -7,7 +7,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	dto "github.com/prometheus/client_model/go"
-	p2j "github.com/ChristianKniep/prom2json/lib"
+	p2j "github.com/ChristianKniep/prom2json"
 )
 
 type testCase struct {

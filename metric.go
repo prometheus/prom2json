@@ -1,4 +1,4 @@
-package metric
+package prom2json
 
 import (
 	"fmt"

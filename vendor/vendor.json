@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "sgmE/hUXVUwdJAymiswg+Gsjd/w=",
-			"path": "github.com/ChristianKniep/prom2json/lib",
-			"revision": "cbe55e5f56914fa8c8723eaf924167b708502858",
-			"revisionTime": "2017-07-10T13:02:14Z"
-		},
-		{
 			"checksumSHA1": "jwx/056iIPQnBIOoQ+AMsvPEM4g=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "3d84af1ae04512e1bd4fe2b23fc6975db255f79c",

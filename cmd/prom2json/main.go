@@ -22,7 +22,7 @@ import (
 	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
-	"github.com/ChristianKniep/prom2json/lib"
+	"github.com/ChristianKniep/prom2json"
 )
 
 func main() {
@@ -33,11 +33,11 @@ func main() {
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
-	go metric.FetchMetricFamilies(os.Args[1], mfChan)
+	go prom2json.FetchMetricFamilies(os.Args[1], mfChan)
 
-	result := []*metric.Family{}
+	result := []*prom2json.Family{}
 	for mf := range mfChan {
-		result = append(result, metric.NewFamily(mf))
+		result = append(result, prom2json.NewFamily(mf))
 	}
 	json, err := json.Marshal(result)
 	if err != nil {

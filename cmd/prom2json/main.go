@@ -20,8 +20,8 @@ import (
 	"runtime"
 
 	"github.com/prometheus/log"
-
 	dto "github.com/prometheus/client_model/go"
+
 	"github.com/prometheus/prom2json"
 )
 

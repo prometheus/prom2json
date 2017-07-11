@@ -5,15 +5,13 @@ import (
 	"io"
 	"mime"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
-	"strconv"
+
 )
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`

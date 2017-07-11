@@ -22,7 +22,7 @@ import (
 	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
-	"github.com/ChristianKniep/prom2json"
+	"github.com/prometheus/prom2json"
 )
 
 func main() {

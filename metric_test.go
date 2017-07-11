@@ -1,4 +1,4 @@
-package main
+package prom2json
 
 import (
 	"math"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	dto "github.com/prometheus/client_model/go"
-	p2j "github.com/ChristianKniep/prom2json"
 )
 
 type testCase struct {
@@ -15,7 +14,7 @@ type testCase struct {
 	timestamp int64
 	mPrefix   string
 	mFamily   *dto.MetricFamily
-	output    *p2j.Family
+	output    *Family
 }
 
 var tcs = []testCase{
@@ -63,29 +62,29 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &p2j.Family{
+		output: &Family{
 			Name: "counter1",
 			Help: "",
 			Type: "COUNTER",
 			Metrics: []interface{}{
-				p2j.Metric{
+				Metric{
 					Labels: map[string]string{
 						"tag2": "def",
 						"tag1": "abc",
 					},
 					Value: "1",
 				},
-				p2j.Metric{
+				Metric{
 					Labels: map[string]string{},
 					Value:  "2",
 				},
-				p2j.Metric{
+				Metric{
 					Labels: map[string]string{
 						"inf": "neg",
 					},
 					Value: "-Inf",
 				},
-				p2j.Metric{
+				Metric{
 					Labels: map[string]string{
 						"inf": "pos",
 					},
@@ -119,12 +118,12 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &p2j.Family{
+		output: &Family{
 			Name: "summary1",
 			Help: "",
 			Type: "SUMMARY",
 			Metrics: []interface{}{
-				p2j.Summary{
+				Summary{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
@@ -165,12 +164,12 @@ var tcs = []testCase{
 				},
 			},
 		},
-		output: &p2j.Family{
+		output: &Family{
 			Name: "histogram1",
 			Help: "",
 			Type: "HISTOGRAM",
 			Metrics: []interface{}{
-				p2j.Histogram{
+				Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
@@ -190,7 +189,7 @@ var tcs = []testCase{
 
 func TestConvertToMetricFamily(t *testing.T) {
 	for _, tc := range tcs {
-		output := p2j.NewFamily(tc.mFamily)
+		output := NewFamily(tc.mFamily)
 		if !reflect.DeepEqual(tc.output, output) {
 			t.Errorf("test case %s: conversion to metricFamily format failed:\nexpected:\n%s\n\nactual:\n%s",
 				tc.name, spew.Sdump(tc.output), spew.Sdump(output))

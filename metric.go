@@ -16,7 +16,7 @@ import (
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
 
-// Family holds the s group of metrics/summary/histogram of a certain name...
+// Family mirrors the MetricFamily proto message.
 type Family struct {
 	//Time    time.Time
 	Name    string        `json:"name"`
@@ -25,13 +25,13 @@ type Family struct {
 	Metrics []interface{} `json:"metrics,omitempty"` // Either metric or summary.
 }
 
-// Metric is for all "single value" metrics.
+// Metric is for all "single value" metrics, i.e. Counter, Gauge, and Untyped.
 type Metric struct {
 	Labels map[string]string `json:"labels,omitempty"`
 	Value  string            `json:"value"`
 }
 
-// Summary describes a summary metric
+// Summary mirrors the Summary proto message.
 type Summary struct {
 	Labels    map[string]string `json:"labels,omitempty"`
 	Quantiles map[string]string `json:"quantiles,omitempty"`
@@ -39,7 +39,7 @@ type Summary struct {
 	Sum       string            `json:"sum"`
 }
 
-// Histogram holds buckets of metrics
+// Histogram mirrors the Histogram proto message.
 type Histogram struct {
 	Labels  map[string]string `json:"labels,omitempty"`
 	Buckets map[string]string `json:"buckets,omitempty"`
@@ -47,7 +47,7 @@ type Histogram struct {
 	Sum     string            `json:"sum"`
 }
 
-// NewFamily consumes a MetricFamily and transforms it to the local Family type
+// NewFamily consumes a MetricFamily and transforms it to the local Family type.
 func NewFamily(dtoMF *dto.MetricFamily) *Family {
 	mf := &Family{
 		//Time:    time.Now(),
@@ -118,7 +118,7 @@ func makeBuckets(m *dto.Metric) map[string]string {
 	return result
 }
 
-// FetchMetricFamilies does stuff
+// FetchMetricFamilies retrieves metrics from the provided URL, decodes them into MetricFamily proto messages, and sends them to the provided channel. It returns after all MetricFamilies have been sent.
 func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	defer close(ch)
 	req, err := http.NewRequest("GET", url, nil)
@@ -137,7 +137,7 @@ func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	ParseResponse(resp, ch)
 }
 
-// ParseResponse consumes an http.Response and pushes it to the MetricFamily channel
+// ParseResponse consumes an http.Response and pushes it to the MetricFamily channel. It returns when all all MetricFamilies are parsed and put on the channel.
 func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&
@@ -168,7 +168,7 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	}
 }
 
-// AddLabel allows to add key/value labels to an already existing Family
+// AddLabel allows to add key/value labels to an already existing Family.
 func (f *Family) AddLabel(key, val string) {
 	for i, item := range f.Metrics {
 		switch item.(type) {

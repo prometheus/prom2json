@@ -11,7 +11,6 @@ import (
 	"github.com/prometheus/log"
 
 	dto "github.com/prometheus/client_model/go"
-
 )
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
@@ -118,7 +117,9 @@ func makeBuckets(m *dto.Metric) map[string]string {
 	return result
 }
 
-// FetchMetricFamilies retrieves metrics from the provided URL, decodes them into MetricFamily proto messages, and sends them to the provided channel. It returns after all MetricFamilies have been sent.
+// FetchMetricFamilies retrieves metrics from the provided URL, decodes them
+// into MetricFamily proto messages, and sends them to the provided channel. It
+// returns after all MetricFamilies have been sent.
 func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	defer close(ch)
 	req, err := http.NewRequest("GET", url, nil)
@@ -137,7 +138,9 @@ func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
 	ParseResponse(resp, ch)
 }
 
-// ParseResponse consumes an http.Response and pushes it to the MetricFamily channel. It returns when all all MetricFamilies are parsed and put on the channel.
+// ParseResponse consumes an http.Response and pushes it to the MetricFamily
+// channel. It returns when all all MetricFamilies are parsed and put on the
+// channel.
 func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) {
 	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&

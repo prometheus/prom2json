@@ -63,5 +63,5 @@
 			"revisionTime": "2017-07-07T11:51:12Z"
 		}
 	],
-	"rootPath": "github.com/ChristianKniep/prom2json"
+	"rootPath": "github.com/prometheus/prom2json"
 }

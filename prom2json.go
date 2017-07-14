@@ -1,6 +1,7 @@
 package prom2json
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"mime"
@@ -120,8 +121,30 @@ func makeBuckets(m *dto.Metric) map[string]string {
 // FetchMetricFamilies retrieves metrics from the provided URL, decodes them
 // into MetricFamily proto messages, and sends them to the provided channel. It
 // returns after all MetricFamilies have been sent.
-func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily) {
+func FetchMetricFamilies(
+	url string, ch chan<- *dto.MetricFamily,
+	certificate, key string,
+) {
 	defer close(ch)
+	var transport *http.Transport
+	if certificate != "" && key != "" {
+		cert, err := tls.LoadX509KeyPair(certificate, key)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport = &http.Transport{TLSClientConfig: tlsConfig}
+	} else {
+		transport = &http.Transport{}
+	}
+	client := &http.Client{Transport: transport}
+	decodeContent(client, url, ch)
+}
+
+func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("creating GET request for URL %q failed: %s", url, err)

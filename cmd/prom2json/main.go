@@ -15,25 +15,32 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
-	"runtime"
 
 	"github.com/prometheus/log"
+
 	dto "github.com/prometheus/client_model/go"
 
 	"github.com/prometheus/prom2json"
 )
 
 func main() {
-	runtime.GOMAXPROCS(2)
-	if len(os.Args) != 2 {
+	cert := flag.String("cert", "", "certificate file")
+	key := flag.String("key", "", "key file")
+	flag.Parse()
+
+	if len(flag.Args()) != 1 {
 		log.Fatalf("Usage: %s METRICS_URL", os.Args[0])
+	}
+	if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
+		log.Fatalf("Usage: %s METRICS_URL\n with TLS client authentication: %s -cert=/path/to/certificate -key=/path/to/key METRICS_URL", os.Args[0], os.Args[0])
 	}
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
-	go prom2json.FetchMetricFamilies(os.Args[1], mfChan)
+	go prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key)
 
 	result := []*prom2json.Family{}
 	for mf := range mfChan {

@@ -123,7 +123,7 @@ func makeBuckets(m *dto.Metric) map[string]string {
 // returns after all MetricFamilies have been sent.
 func FetchMetricFamilies(
 	url string, ch chan<- *dto.MetricFamily,
-	certificate, key string,
+	certificate string, key string,
 ) {
 	defer close(ch)
 	var transport *http.Transport
@@ -150,7 +150,7 @@ func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily)
 		log.Fatalf("creating GET request for URL %q failed: %s", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("executing GET request for URL %q failed: %s", url, err)
 	}

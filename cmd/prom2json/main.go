@@ -17,16 +17,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"runtime"
 
-	"github.com/prometheus/log"
 	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/log"
 
 	"github.com/prometheus/prom2json"
 )
 
 func main() {
-	runtime.GOMAXPROCS(2)
 	if len(os.Args) != 2 {
 		log.Fatalf("Usage: %s METRICS_URL", os.Args[0])
 	}

@@ -29,6 +29,7 @@ import (
 func main() {
 	cert := flag.String("cert", "", "certificate file")
 	key := flag.String("key", "", "key file")
+	skipCAcheck := flag.Bool("skipCAcheck", false, "Skip certificate check during tls handshake")
 	flag.Parse()
 
 	if len(flag.Args()) != 1 {
@@ -40,7 +41,7 @@ func main() {
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
-	go prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key)
+	go prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key, *skipCAcheck)
 
 	result := []*prom2json.Family{}
 	for mf := range mfChan {

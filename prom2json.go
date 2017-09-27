@@ -124,6 +124,7 @@ func makeBuckets(m *dto.Metric) map[string]string {
 func FetchMetricFamilies(
 	url string, ch chan<- *dto.MetricFamily,
 	certificate string, key string,
+	skipServerCertCheck bool,
 ) {
 	defer close(ch)
 	var transport *http.Transport
@@ -133,12 +134,15 @@ func FetchMetricFamilies(
 			log.Fatal(err)
 		}
 		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: skipServerCertCheck,
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport = &http.Transport{TLSClientConfig: tlsConfig}
 	} else {
-		transport = &http.Transport{}
+		transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
+		}
 	}
 	client := &http.Client{Transport: transport}
 	decodeContent(client, url, ch)

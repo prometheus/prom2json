@@ -134,18 +134,14 @@ func FetchMetricFamilies(
 			log.Fatal(err)
 		}
 		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: skipServerCertCheck,
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport = &http.Transport{TLSClientConfig: tlsConfig}
 	} else {
-		transport = &http.Transport{}
-	}
-	if skipServerCertCheck {
-		if transport.TLSClientConfig != nil {
-			transport.TLSClientConfig.InsecureSkipVerify = true
-		} else {
-			transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
 		}
 	}
 	client := &http.Client{Transport: transport}

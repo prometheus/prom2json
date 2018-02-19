@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/prometheus/log"
+	"github.com/prometheus/common/log"
 
 	dto "github.com/prometheus/client_model/go"
 

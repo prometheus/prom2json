@@ -9,7 +9,7 @@ import (
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/common/expfmt"
-	"github.com/prometheus/log"
+	"github.com/prometheus/common/log"
 
 	dto "github.com/prometheus/client_model/go"
 )

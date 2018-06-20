@@ -8,8 +8,9 @@ import (
 	"net/http"
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
-	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+
+	dto "github.com/prometheus/client_model/go"
 )
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
@@ -149,12 +150,12 @@ func FetchMetricFamilies(
 func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return fmt.Errorf("creating GET request for URL %q failed: %s", url, err)
+		return fmt.Errorf("creating GET request for URL %q failed: %v", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("executing GET request for URL %q failed: %s", url, err)
+		return fmt.Errorf("executing GET request for URL %q failed: %v", url, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {

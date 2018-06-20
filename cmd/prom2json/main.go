@@ -41,7 +41,12 @@ func main() {
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
-	go prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key, *skipServerCertCheck)
+	go func() {
+		err := prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key, *skipServerCertCheck)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	result := []*prom2json.Family{}
 	for mf := range mfChan {

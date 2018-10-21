@@ -1,6 +1,13 @@
+go:
+    # Whenever the Go version is updated here
+    # .circle/config.yml should also be updated.
+    version: 1.11
 repository:
     path: github.com/prometheus/prom2json
 build:
+    binaries:
+        - name: prom2json
+          path: ./cmd/prom2json
     flags: -a -tags netgo
     ldflags: |
         -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}

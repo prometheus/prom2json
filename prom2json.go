@@ -19,6 +19,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"time"
 
 	"github.com/matttproud/golang_protobuf_extensions/pbutil"
 	"github.com/prometheus/common/expfmt"
@@ -137,6 +138,7 @@ func FetchMetricFamilies(
 	url string, ch chan<- *dto.MetricFamily,
 	certificate string, key string,
 	skipServerCertCheck bool,
+	timeout time.Duration,
 ) error {
 	defer close(ch)
 	var transport *http.Transport
@@ -156,7 +158,7 @@ func FetchMetricFamilies(
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
 		}
 	}
-	client := &http.Client{Transport: transport}
+	client := &http.Client{Transport: transport, Timeout: timeout}
 	return decodeContent(client, url, ch)
 }
 

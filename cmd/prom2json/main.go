@@ -28,7 +28,7 @@ import (
 	"github.com/prometheus/prom2json"
 )
 
-var USAGE = fmt.Sprintf(`Usage: %s [METRICS_PATH | METRICS_URL [--cert CERT_PATH --key KEY_PATH | --accept-invalid-cert]]`, os.Args[0])
+var usage = fmt.Sprintf(`Usage: %s [METRICS_PATH | METRICS_URL [--cert CERT_PATH --key KEY_PATH | --accept-invalid-cert]]`, os.Args[0])
 
 func main() {
 	cert := flag.String("cert", "", "client certificate file")
@@ -42,14 +42,14 @@ func main() {
 	flag.NArg()
 
 	if flag.NArg() > 1 {
-		log.Fatalf("Too many arguments.\n%s", USAGE)
+		log.Fatalf("Too many arguments.\n%s", usage)
 	}
 
 	if arg == "" {
 		// Use stdin on empty argument.
 		input = os.Stdin
-	} else if URL, urlErr := url.Parse(arg); urlErr != nil || URL.Scheme == "" {
-		// `URL, err := url.Parse("/some/path.txt")` results in: `err == nil && URL.Scheme == ""`
+	} else if url, urlErr := url.Parse(arg); urlErr != nil || url.Scheme == "" {
+		// `url, err := url.Parse("/some/path.txt")` results in: `err == nil && url.Scheme == ""`
 		// Open file since arg appears not to be a valid URL (parsing error occurred or the scheme is missing).
 		if input, err = os.Open(arg); err != nil {
 			log.Fatal("error opening file:", err)
@@ -57,7 +57,7 @@ func main() {
 	} else {
 		// validate Client SSL arguments since arg appears to be a valid URL.
 		if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
-			log.Fatalf("%s\n with TLS client authentication: %s --cert /path/to/certificate --key /path/to/key METRICS_URL", USAGE, os.Args[0])
+			log.Fatalf("%s\n with TLS client authentication: %s --cert /path/to/certificate --key /path/to/key METRICS_URL", usage, os.Args[0])
 		}
 	}
 

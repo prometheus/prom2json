@@ -184,6 +184,7 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) error {
 	if err == nil && mediatype == "application/vnd.google.protobuf" &&
 		params["encoding"] == "delimited" &&
 		params["proto"] == "io.prometheus.client.MetricFamily" {
+		defer close(ch)
 		for {
 			mf := &dto.MetricFamily{}
 			if _, err = pbutil.ReadDelimited(resp.Body, mf); err != nil {

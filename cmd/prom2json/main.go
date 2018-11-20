@@ -46,16 +46,16 @@ func main() {
 	}
 
 	if arg == "" {
-		// Use stdin on empty argument
+		// Use stdin on empty argument.
 		input = os.Stdin
 	} else if URL, urlErr := url.Parse(arg); urlErr != nil || URL.Scheme == "" {
-		// Note: `URL, err := url.Parse("/some/path.txt")` results in: `err == nil && URL.Scheme == ""`
-		// Open file since arg appears not to be a valid url (parsing error occurred or the scheme is missing)
+		// `URL, err := url.Parse("/some/path.txt")` results in: `err == nil && URL.Scheme == ""`
+		// Open file since arg appears not to be a valid URL (parsing error occurred or the scheme is missing).
 		if input, err = os.Open(arg); err != nil {
 			log.Fatal("error opening file:", err)
 		}
 	} else {
-		// validate Client SSL arguments since arg appears to be a valid URL
+		// validate Client SSL arguments since arg appears to be a valid URL.
 		if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
 			log.Fatalf("%s\n with TLS client authentication: %s --cert /path/to/certificate --key /path/to/key METRICS_URL", USAGE, os.Args[0])
 		}
@@ -63,7 +63,7 @@ func main() {
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
-	// missing input means we are reading from an URL
+	// Missing input means we are reading from an URL.
 	if input != nil {
 		go func() {
 			if err := prom2json.ParseReader(input, mfChan); err != nil {

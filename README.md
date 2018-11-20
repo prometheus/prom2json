@@ -35,7 +35,7 @@ Installing and building:
 Running:
 
     $ prom2json http://my-prometheus-client.example.org:8080/metrics
-    $ cat /tmp/metrics.prom | prom2json
+    $ curl http://my-prometheus-client.example.org:8080/metrics | prom2json
     $ prom2json /tmp/metrics.prom
     
 Running with TLS client authentication:

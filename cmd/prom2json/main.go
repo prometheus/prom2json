@@ -42,7 +42,7 @@ func main() {
 
 	if arg == "" {
 		input = os.Stdin
-	} else if URL, urlErr := url.Parse(arg); urlErr != nil || URL.Scheme == "file" || URL.Scheme == "" {
+	} else if URL, urlErr := url.Parse(arg); urlErr != nil || URL.Scheme == "" {
 		// Try to parse the arg as an url
 		if input, err = os.Open(arg); err != nil {
 			log.Fatal("error opening file:", err)

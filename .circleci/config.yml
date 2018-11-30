@@ -12,12 +12,12 @@ executors:
 jobs:
   test:
     executor: golang
-    resource_class: large
 
     steps:
     - checkout
     - run: make promu
     - run: make check_license style unused staticcheck test build
+    - run: git diff --exit-code
     - store_artifacts:
         path: prom2json
         destination: /build/prom2json

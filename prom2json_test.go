@@ -25,7 +25,6 @@ import (
 type testCase struct {
 	name      string
 	timestamp int64
-	mPrefix   string
 	mFamily   *dto.MetricFamily
 	output    *Family
 }

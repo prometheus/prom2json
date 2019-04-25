@@ -16,7 +16,7 @@ jobs:
     steps:
     - checkout
     - run: make promu
-    - run: make check_license style unused staticcheck test build
+    - run: make
     - run: git diff --exit-code
     - store_artifacts:
         path: prom2json

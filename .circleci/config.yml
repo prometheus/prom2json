@@ -53,7 +53,7 @@ jobs:
     - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
     - run: docker login -u $QUAY_LOGIN -p $QUAY_PASSWORD quay.io
     - run: make docker-publish
-    - run: make docker-publish DOCKER_REPO=quay.io/prom2json
+    - run: make docker-publish DOCKER_REPO=quay.io/prometheus
 
   docker_hub_release_tags:
     executor: golang

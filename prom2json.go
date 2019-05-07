@@ -156,6 +156,8 @@ func FetchMetricFamilies(
 		}
 	}
 	client := &http.Client{Transport: transport}
+	defer client.CloseIdleConnections()
+
 	return decodeContent(client, url, ch)
 }
 

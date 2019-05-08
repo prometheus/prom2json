@@ -14,10 +14,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -71,8 +73,12 @@ func main() {
 			}
 		}()
 	} else {
+		transport, err := makeTransport(*cert, *key, *skipServerCertCheck)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		go func() {
-			err := prom2json.FetchMetricFamilies(arg, mfChan, *cert, *key, *skipServerCertCheck)
+			err := prom2json.FetchMetricFamilies(arg, mfChan, transport)
 			if err != nil {
 				log.Fatalln(err)
 			}
@@ -91,4 +97,28 @@ func main() {
 		log.Fatalln("error writing to stdout:", err)
 	}
 	fmt.Println()
+}
+
+func makeTransport(
+	certificate string, key string,
+	skipServerCertCheck bool,
+) (*http.Transport, error) {
+	var transport *http.Transport
+	if certificate != "" && key != "" {
+		cert, err := tls.LoadX509KeyPair(certificate, key)
+		if err != nil {
+			return nil, err
+		}
+		tlsConfig := &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: skipServerCertCheck,
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport = &http.Transport{TLSClientConfig: tlsConfig}
+	} else {
+		transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
+		}
+	}
+	return transport, nil
 }

@@ -14,7 +14,6 @@
 package prom2json
 
 import (
-	"crypto/tls"
 	"fmt"
 	"io"
 	"mime"
@@ -132,39 +131,15 @@ func makeBuckets(m *dto.Metric) map[string]string {
 
 // FetchMetricFamilies retrieves metrics from the provided URL, decodes them
 // into MetricFamily proto messages, and sends them to the provided channel. It
-// returns after all MetricFamilies have been sent.
-func FetchMetricFamilies(
-	url string, ch chan<- *dto.MetricFamily,
-	certificate string, key string,
-	skipServerCertCheck bool,
-) error {
-	var transport *http.Transport
-	if certificate != "" && key != "" {
-		cert, err := tls.LoadX509KeyPair(certificate, key)
-		if err != nil {
-			return err
-		}
-		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{cert},
-			InsecureSkipVerify: skipServerCertCheck,
-		}
-		tlsConfig.BuildNameToCertificate()
-		transport = &http.Transport{TLSClientConfig: tlsConfig}
-	} else {
-		transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
-		}
-	}
-	client := &http.Client{Transport: transport}
-	return decodeContent(client, url, ch)
-}
-
-func decodeContent(client *http.Client, url string, ch chan<- *dto.MetricFamily) error {
+// returns after all MetricFamilies have been sent. The provided http.Transport
+// may be nil (in which case the default Transport is used).
+func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, t *http.Transport) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("creating GET request for URL %q failed: %v", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
+	client := http.Client{Transport: t}
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("executing GET request for URL %q failed: %v", url, err)

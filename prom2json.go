@@ -200,9 +200,8 @@ func ParseReader(in io.Reader, ch chan<- *dto.MetricFamily) error {
 // AddLabel allows to add key/value labels to an already existing Family.
 func (f *Family) AddLabel(key, val string) {
 	for i, item := range f.Metrics {
-		switch item.(type) {
+		switch m := item.(type) {
 		case Metric:
-			m := item.(Metric)
 			m.Labels[key] = val
 			f.Metrics[i] = m
 		}

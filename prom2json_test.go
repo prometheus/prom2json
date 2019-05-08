@@ -23,16 +23,14 @@ import (
 )
 
 type testCase struct {
-	name      string
-	timestamp int64
-	mFamily   *dto.MetricFamily
-	output    *Family
+	name    string
+	mFamily *dto.MetricFamily
+	output  *Family
 }
 
 var tcs = []testCase{
 	testCase{
-		name:      "test counter",
-		timestamp: 123456789,
+		name: "test counter",
 		mFamily: &dto.MetricFamily{
 			Name: strPtr("counter1"),
 			Type: metricTypePtr(dto.MetricType_COUNTER),
@@ -45,6 +43,17 @@ var tcs = []testCase{
 					},
 					Counter: &dto.Counter{
 						Value: floatPtr(1),
+					},
+				},
+				// Test metric with tags and timestamp
+				&dto.Metric{
+					Label: []*dto.LabelPair{
+						createLabelPair("tag1", "foo"),
+						createLabelPair("tag2", "bar"),
+					},
+					TimestampMs: intPtr(123456),
+					Counter: &dto.Counter{
+						Value: floatPtr(42),
 					},
 				},
 				// Test metric without tags
@@ -87,6 +96,14 @@ var tcs = []testCase{
 					Value: "1",
 				},
 				Metric{
+					Labels: map[string]string{
+						"tag2": "bar",
+						"tag1": "foo",
+					},
+					TimestampMs: "123456",
+					Value:       "42",
+				},
+				Metric{
 					Labels: map[string]string{},
 					Value:  "2",
 				},
@@ -106,8 +123,7 @@ var tcs = []testCase{
 		},
 	},
 	testCase{
-		name:      "test summaries",
-		timestamp: 123456789,
+		name: "test summaries",
 		mFamily: &dto.MetricFamily{
 			Name: strPtr("summary1"),
 			Type: metricTypePtr(dto.MetricType_SUMMARY),
@@ -152,8 +168,7 @@ var tcs = []testCase{
 		},
 	},
 	testCase{
-		name:      "test histograms",
-		timestamp: 123456789,
+		name: "test histograms",
 		mFamily: &dto.MetricFamily{
 			Name: strPtr("histogram1"),
 			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
@@ -223,6 +238,10 @@ func metricTypePtr(mt dto.MetricType) *dto.MetricType {
 
 func uintPtr(u uint64) *uint64 {
 	return &u
+}
+
+func intPtr(i int64) *int64 {
+	return &i
 }
 
 func createLabelPair(name string, value string) *dto.LabelPair {

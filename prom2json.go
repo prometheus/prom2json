@@ -39,24 +39,27 @@ type Family struct {
 
 // Metric is for all "single value" metrics, i.e. Counter, Gauge, and Untyped.
 type Metric struct {
-	Labels map[string]string `json:"labels,omitempty"`
-	Value  string            `json:"value"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	TimestampMs string            `json:"timestamp_ms,omitempty"`
+	Value       string            `json:"value"`
 }
 
 // Summary mirrors the Summary proto message.
 type Summary struct {
-	Labels    map[string]string `json:"labels,omitempty"`
-	Quantiles map[string]string `json:"quantiles,omitempty"`
-	Count     string            `json:"count"`
-	Sum       string            `json:"sum"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	TimestampMs string            `json:"timestamp_ms,omitempty"`
+	Quantiles   map[string]string `json:"quantiles,omitempty"`
+	Count       string            `json:"count"`
+	Sum         string            `json:"sum"`
 }
 
 // Histogram mirrors the Histogram proto message.
 type Histogram struct {
-	Labels  map[string]string `json:"labels,omitempty"`
-	Buckets map[string]string `json:"buckets,omitempty"`
-	Count   string            `json:"count"`
-	Sum     string            `json:"sum"`
+	Labels      map[string]string `json:"labels,omitempty"`
+	TimestampMs string            `json:"timestamp_ms,omitempty"`
+	Buckets     map[string]string `json:"buckets,omitempty"`
+	Count       string            `json:"count"`
+	Sum         string            `json:"sum"`
 }
 
 // NewFamily consumes a MetricFamily and transforms it to the local Family type.
@@ -71,22 +74,25 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 	for i, m := range dtoMF.Metric {
 		if dtoMF.GetType() == dto.MetricType_SUMMARY {
 			mf.Metrics[i] = Summary{
-				Labels:    makeLabels(m),
-				Quantiles: makeQuantiles(m),
-				Count:     fmt.Sprint(m.GetSummary().GetSampleCount()),
-				Sum:       fmt.Sprint(m.GetSummary().GetSampleSum()),
+				Labels:      makeLabels(m),
+				TimestampMs: makeTimestamp(m),
+				Quantiles:   makeQuantiles(m),
+				Count:       fmt.Sprint(m.GetSummary().GetSampleCount()),
+				Sum:         fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else if dtoMF.GetType() == dto.MetricType_HISTOGRAM {
 			mf.Metrics[i] = Histogram{
-				Labels:  makeLabels(m),
-				Buckets: makeBuckets(m),
-				Count:   fmt.Sprint(m.GetHistogram().GetSampleCount()),
-				Sum:     fmt.Sprint(m.GetSummary().GetSampleSum()),
+				Labels:      makeLabels(m),
+				TimestampMs: makeTimestamp(m),
+				Buckets:     makeBuckets(m),
+				Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
+				Sum:         fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		} else {
 			mf.Metrics[i] = Metric{
-				Labels: makeLabels(m),
-				Value:  fmt.Sprint(getValue(m)),
+				Labels:      makeLabels(m),
+				TimestampMs: makeTimestamp(m),
+				Value:       fmt.Sprint(getValue(m)),
 			}
 		}
 	}
@@ -112,6 +118,13 @@ func makeLabels(m *dto.Metric) map[string]string {
 		result[lp.GetName()] = lp.GetValue()
 	}
 	return result
+}
+
+func makeTimestamp(m *dto.Metric) string {
+	if m.TimestampMs == nil {
+		return ""
+	}
+	return fmt.Sprint(m.GetTimestampMs())
 }
 
 func makeQuantiles(m *dto.Metric) map[string]string {

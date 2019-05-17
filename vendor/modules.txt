@@ -5,27 +5,25 @@ github.com/alecthomas/template/parse
 github.com/alecthomas/units
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/golang/protobuf v1.2.0
+# github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+# github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
-# github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910
+# github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 github.com/prometheus/client_model/go
-# github.com/prometheus/common v0.0.0-20181126121408-4724e9255275
+# github.com/prometheus/common v0.4.0
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/log
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
 github.com/prometheus/common/model
-# github.com/sirupsen/logrus v1.2.0
+# github.com/sirupsen/logrus v1.4.1
 github.com/sirupsen/logrus
-# golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
-golang.org/x/crypto/ssh/terminal
-# golang.org/x/sys v0.0.0-20181206074257-70b957f3b65e
+# golang.org/x/sys v0.0.0-20190515120540-06a5c4944438
 golang.org/x/sys/windows/svc/eventlog
+golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-golang.org/x/sys/unix
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2

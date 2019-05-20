@@ -9,6 +9,13 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.2.1 / 2019-05-20
+
+_No actual code changes. Only a fix of the CircleCI config to make Docker
+images available again._
+
+* [BUGFIX] Fix image upload to Docker Hub and Quay.
+
 ## 1.2.0 / 2019-05-17
 
 ### **Breaking changes**

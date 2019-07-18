@@ -1,7 +1,9 @@
-FROM        quay.io/prometheus/busybox:latest
+ARG ARCH="amd64"
+ARG OS="linux"
+FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
 LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
 
-COPY prom2json /bin/prom2json
+COPY .build/${OS}-${ARCH}/prom2json /bin/prom2json
 
 USER nobody
 ENTRYPOINT  [ "/bin/prom2json" ]

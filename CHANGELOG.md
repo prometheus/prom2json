@@ -9,6 +9,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.2.2 / 2019-07-23
+
+* [FEATURE] Add ARM container images. #61
+* [BUGFIX] Properly set the sum in a histogram. #65
+
 ## 1.2.1 / 2019-05-20
 
 _No actual code changes. Only a fix of the CircleCI config to make Docker

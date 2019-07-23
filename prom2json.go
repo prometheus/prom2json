@@ -85,7 +85,7 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 				TimestampMs: makeTimestamp(m),
 				Buckets:     makeBuckets(m),
 				Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
-				Sum:         fmt.Sprint(m.GetSummary().GetSampleSum()),
+				Sum:         fmt.Sprint(m.GetHistogram().GetSampleSum()),
 			}
 		} else {
 			mf.Metrics[i] = Metric{

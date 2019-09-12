@@ -15,15 +15,15 @@ github.com/matttproud/golang_protobuf_extensions/pbutil
 github.com/prometheus/client_model/go
 # github.com/prometheus/common v0.4.0
 github.com/prometheus/common/expfmt
-github.com/prometheus/common/log
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+github.com/prometheus/common/log
 github.com/prometheus/common/model
 # github.com/sirupsen/logrus v1.4.1
 github.com/sirupsen/logrus
 # golang.org/x/sys v0.0.0-20190515120540-06a5c4944438
-golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
+golang.org/x/sys/windows/svc/eventlog
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2

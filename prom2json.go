@@ -149,16 +149,19 @@ func makeBuckets(m *dto.Metric) map[string]string {
 func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		close(ch)
 		return fmt.Errorf("creating GET request for URL %q failed: %v", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
 	client := http.Client{Transport: transport}
 	resp, err := client.Do(req)
 	if err != nil {
+		close(ch)
 		return fmt.Errorf("executing GET request for URL %q failed: %v", url, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		close(ch)
 		return fmt.Errorf("GET request for URL %q returned HTTP status %s", url, resp.Status)
 	}
 	return ParseResponse(resp, ch)

@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/prometheus/common/log"
 
@@ -103,22 +104,22 @@ func makeTransport(
 	certificate string, key string,
 	skipServerCertCheck bool,
 ) (*http.Transport, error) {
-	var transport *http.Transport
+	// Start with the DefaultTransport for sane defaults.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	// Conservatively disable HTTP keep-alives as this program will only
+	// ever need a single HTTP request.
+	transport.DisableKeepAlives = true
+	// Timeout early if the server doesn't even return the headers.
+	transport.ResponseHeaderTimeout = time.Minute
+	tlsConfig := &tls.Config{InsecureSkipVerify: skipServerCertCheck}
 	if certificate != "" && key != "" {
 		cert, err := tls.LoadX509KeyPair(certificate, key)
 		if err != nil {
 			return nil, err
 		}
-		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{cert},
-			InsecureSkipVerify: skipServerCertCheck,
-		}
+		tlsConfig.Certificates = []tls.Certificate{cert}
 		tlsConfig.BuildNameToCertificate()
-		transport = &http.Transport{TLSClientConfig: tlsConfig}
-	} else {
-		transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: skipServerCertCheck},
-		}
 	}
+	transport.TLSClientConfig = tlsConfig
 	return transport, nil
 }

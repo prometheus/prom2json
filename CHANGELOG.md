@@ -9,6 +9,13 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.3.0 / 2019-12-21
+
+* [ENHANCEMENT] Saner settings for the HTTP transport, based on the usual
+  defaults, but with a ResponseHeaderTimeout of one minute. #72
+* [BUGFIX] Close metric family channel in case of errors to prevent leaking a
+  goroutine. #70
+
 ## 1.2.2 / 2019-07-23
 
 * [FEATURE] Add ARM container images. #61

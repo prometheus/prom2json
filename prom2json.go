@@ -71,7 +71,8 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 		Metrics: make([]interface{}, len(dtoMF.Metric)),
 	}
 	for i, m := range dtoMF.Metric {
-		if dtoMF.GetType() == dto.MetricType_SUMMARY {
+		switch dtoMF.GetType() {
+		case dto.MetricType_SUMMARY:
 			mf.Metrics[i] = Summary{
 				Labels:      makeLabels(m),
 				TimestampMs: makeTimestamp(m),
@@ -79,7 +80,7 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 				Count:       fmt.Sprint(m.GetSummary().GetSampleCount()),
 				Sum:         fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
-		} else if dtoMF.GetType() == dto.MetricType_HISTOGRAM {
+		case dto.MetricType_HISTOGRAM:
 			mf.Metrics[i] = Histogram{
 				Labels:      makeLabels(m),
 				TimestampMs: makeTimestamp(m),
@@ -87,7 +88,7 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 				Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
 				Sum:         fmt.Sprint(m.GetHistogram().GetSampleSum()),
 			}
-		} else {
+		default:
 			mf.Metrics[i] = Metric{
 				Labels:      makeLabels(m),
 				TimestampMs: makeTimestamp(m),
@@ -99,16 +100,16 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 }
 
 func getValue(m *dto.Metric) float64 {
-	if m.Gauge != nil {
+	switch {
+	case m.Gauge != nil:
 		return m.GetGauge().GetValue()
-	}
-	if m.Counter != nil {
+	case m.Counter != nil:
 		return m.GetCounter().GetValue()
-	}
-	if m.Untyped != nil {
+	case m.Untyped != nil:
 		return m.GetUntyped().GetValue()
+	default:
+		return 0.
 	}
-	return 0.
 }
 
 func makeLabels(m *dto.Metric) map[string]string {

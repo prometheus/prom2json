@@ -118,7 +118,6 @@ func makeTransport(
 			return nil, err
 		}
 		tlsConfig.Certificates = []tls.Certificate{cert}
-		tlsConfig.BuildNameToCertificate()
 	}
 	transport.TLSClientConfig = tlsConfig
 	return transport, nil

@@ -131,7 +131,7 @@ which cannot be encoded as JSON numbers.
 
 ## Using Docker
 
-You can deploy this tool using the [prom/prom2json](https://registry.hub.docker.com/u/prom/prom2json/) Docker image.
+You can deploy this tool using the [prom/prom2json](https://registry.hub.docker.com/r/prom/prom2json/) Docker image.
 
 For example:
 

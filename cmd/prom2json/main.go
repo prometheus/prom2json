@@ -24,8 +24,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/prometheus/common/log"
-
 	dto "github.com/prometheus/client_model/go"
 
 	"github.com/prometheus/prom2json"
@@ -45,7 +43,8 @@ func main() {
 	flag.NArg()
 
 	if flag.NArg() > 1 {
-		log.Fatalf("Too many arguments.\n%s", usage)
+		fmt.Fprintf(os.Stderr, "Too many arguments.\n%s", usage)
+		os.Exit(2)
 	}
 
 	if arg == "" {
@@ -55,12 +54,14 @@ func main() {
 		// `url, err := url.Parse("/some/path.txt")` results in: `err == nil && url.Scheme == ""`
 		// Open file since arg appears not to be a valid URL (parsing error occurred or the scheme is missing).
 		if input, err = os.Open(arg); err != nil {
-			log.Fatal("error opening file:", err)
+			fmt.Fprintln(os.Stderr, "error opening file:", err)
+			os.Exit(1)
 		}
 	} else {
-		// validate Client SSL arguments since arg appears to be a valid URL.
+		// Validate Client SSL arguments since arg appears to be a valid URL.
 		if (*cert != "" && *key == "") || (*cert == "" && *key != "") {
-			log.Fatalf("%s\n with TLS client authentication: %s --cert /path/to/certificate --key /path/to/key METRICS_URL", usage, os.Args[0])
+			fmt.Fprintf(os.Stderr, "%s\n with TLS client authentication: %s --cert /path/to/certificate --key /path/to/key METRICS_URL", usage, os.Args[0])
+			os.Exit(1)
 		}
 	}
 
@@ -70,18 +71,21 @@ func main() {
 	if input != nil {
 		go func() {
 			if err := prom2json.ParseReader(input, mfChan); err != nil {
-				log.Fatal("error reading metrics:", err)
+				fmt.Fprintln(os.Stderr, "error reading metrics:", err)
+				os.Exit(1)
 			}
 		}()
 	} else {
 		transport, err := makeTransport(*cert, *key, *skipServerCertCheck)
 		if err != nil {
-			log.Fatalln(err)
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
 		go func() {
 			err := prom2json.FetchMetricFamilies(arg, mfChan, transport)
 			if err != nil {
-				log.Fatalln(err)
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
 			}
 		}()
 	}
@@ -92,10 +96,12 @@ func main() {
 	}
 	jsonText, err := json.Marshal(result)
 	if err != nil {
-		log.Fatalln("error marshaling JSON:", err)
+		fmt.Fprintln(os.Stderr, "error marshaling JSON:", err)
+		os.Exit(1)
 	}
 	if _, err := os.Stdout.Write(jsonText); err != nil {
-		log.Fatalln("error writing to stdout:", err)
+		fmt.Fprintln(os.Stderr, "error writing to stdout:", err)
+		os.Exit(1)
 	}
 	fmt.Println()
 }

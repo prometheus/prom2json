@@ -30,7 +30,7 @@ in protocol buffer or text format and dumps the result as JSON to
 
 Installing and building:
 
-    $ go get github.com/prometheus/prom2json/cmd/prom2json
+    $ GO111MODULE=on go install github.com/prometheus/prom2json/cmd/prom2json@latest
 
 Running:
 

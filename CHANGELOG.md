@@ -9,6 +9,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.3.1 / 2022-04-19
+
+_There are no code changes in this release. It merely comes with updated
+dependencies, and the pre-built binaries are using Go1.18.1., both to avoid potential security issues. (Note that this is just precaution. We do not know of any relevant vulnerabilities in v1.3.0.)_
+
 ## 1.3.0 / 2019-12-21
 
 * [ENHANCEMENT] Saner settings for the HTTP transport, based on the usual

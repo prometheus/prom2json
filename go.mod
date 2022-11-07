@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/davecgh/go-spew v1.1.1
-	github.com/matttproud/golang_protobuf_extensions v1.0.2
+	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.37.0
 )

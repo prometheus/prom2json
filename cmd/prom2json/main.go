@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	dto "github.com/prometheus/client_model/go"
@@ -35,6 +36,7 @@ func main() {
 	cert := flag.String("cert", "", "client certificate file")
 	key := flag.String("key", "", "client certificate's key file")
 	skipServerCertCheck := flag.Bool("accept-invalid-cert", false, "Accept any certificate during TLS handshake. Insecure, use only for testing.")
+	extraHeaders := flag.String("extra-headers", "", "extra headers to add when fetching metrics from URLs, like authentication headers")
 	flag.Parse()
 
 	var input io.Reader
@@ -82,7 +84,11 @@ func main() {
 			os.Exit(1)
 		}
 		go func() {
-			err := prom2json.FetchMetricFamilies(arg, mfChan, transport)
+			headers := map[string]string{}
+			if *extraHeaders != "" {
+				headers = processHeaders(*extraHeaders)
+			}
+			err := prom2json.FetchMetricFamilies(arg, mfChan, transport, headers)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -127,4 +133,13 @@ func makeTransport(
 	}
 	transport.TLSClientConfig = tlsConfig
 	return transport, nil
+}
+
+func processHeaders(headers string) map[string]string {
+	ret := map[string]string{}
+	for _, header := range strings.Split(headers, ",") {
+		split := strings.SplitN(header, "=", 2)
+		ret[split[0]] = split[1]
+	}
+	return ret
 }

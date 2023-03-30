@@ -147,13 +147,16 @@ func makeBuckets(m *dto.Metric) map[string]string {
 // into MetricFamily proto messages, and sends them to the provided channel. It
 // returns after all MetricFamilies have been sent. The provided transport
 // may be nil (in which case the default Transport is used).
-func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper) error {
+func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper, extraHeaders map[string]string) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		close(ch)
 		return fmt.Errorf("creating GET request for URL %q failed: %v", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
+	for header, value := range extraHeaders {
+		req.Header.Add(header, value)
+	}
 	client := http.Client{Transport: transport}
 	resp, err := client.Do(req)
 	if err != nil {

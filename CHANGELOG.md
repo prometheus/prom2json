@@ -9,6 +9,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.3.3 / 2023-05-25
+
+_There are no code changes in this release. It merely comes with updated
+dependencies, and the pre-built binaries are using Go1.20.4., both to avoid potential security issues. (Note that this is just precaution. We do not know of any relevant vulnerabilities in v1.3.2.)_
+
 ## 1.3.2 / 2022-10-07
 
 _There are no code changes in this release. It merely comes with updated

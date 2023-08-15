@@ -73,6 +73,10 @@ Example query to retrieve the number of metrics in the `http_requests_total` met
 
     $ prom2json http://my-prometheus-client.example.org:8080/metrics | jq '.[]|select(.name=="http_requests_total")|.metrics|length'
 
+Example input from stdin:
+
+    $ curl http://my-prometheus-client.example.org:8080/metrics | grep http_requests_total | prom2json
+
 # JSON format
 
 Note that all numbers are encoded as strings. Some parsers want it

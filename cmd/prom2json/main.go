@@ -29,12 +29,23 @@ import (
 	"github.com/prometheus/prom2json"
 )
 
-var usage = fmt.Sprintf(`Usage: %s [METRICS_PATH | METRICS_URL [--cert CERT_PATH --key KEY_PATH | --accept-invalid-cert]]`, os.Args[0])
+var usage = fmt.Sprintf(`Usage: %s [METRICS_PATH | METRICS_URL [--cert CERT_PATH --key KEY_PATH | --accept-invalid-cert]]
+
+Example:
+
+	$ prom2json http://my-prometheus-server:9000/metrics
+
+	$ curl http://my-prometheus-server:9000/metrics | prom2json
+	
+`, os.Args[0])
 
 func main() {
 	cert := flag.String("cert", "", "client certificate file")
 	key := flag.String("key", "", "client certificate's key file")
 	skipServerCertCheck := flag.Bool("accept-invalid-cert", false, "Accept any certificate during TLS handshake. Insecure, use only for testing.")
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, usage)
+	}
 	flag.Parse()
 
 	var input io.Reader
@@ -66,7 +77,6 @@ func main() {
 	}
 
 	mfChan := make(chan *dto.MetricFamily, 1024)
-
 	// Missing input means we are reading from an URL.
 	if input != nil {
 		go func() {

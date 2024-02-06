@@ -6,11 +6,11 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.5.0
-	github.com/prometheus/common v0.45.0
+	github.com/prometheus/common v0.46.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+	google.golang.org/protobuf v1.32.0 // indirect
 )

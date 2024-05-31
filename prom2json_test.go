@@ -51,7 +51,7 @@ var tcs = []testCase{
 						createLabelPair("tag1", "foo"),
 						createLabelPair("tag2", "bar"),
 					},
-					TimestampMs: intPtr(123456),
+					TimestampMs: int64Ptr(123456),
 					Counter: &dto.Counter{
 						Value: floatPtr(42),
 					},
@@ -212,6 +212,73 @@ var tcs = []testCase{
 			},
 		},
 	},
+	testCase{
+		name: "test native histograms",
+		mFamily: &dto.MetricFamily{
+			Name: strPtr("histogram2"),
+			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
+			Metric: []*dto.Metric{
+				&dto.Metric{
+					// Test summary with NaN
+					Label: []*dto.LabelPair{
+						createLabelPair("tag1", "abc"),
+						createLabelPair("tag2", "def"),
+					},
+					Histogram: &dto.Histogram{
+						SampleCount: uintPtr(10),
+						SampleSum:   floatPtr(123.45),
+						Schema:      int32Ptr(1),
+						PositiveSpan: []*dto.BucketSpan{
+							createBucketSpan(0, 3),
+							createBucketSpan(1, 1),
+						},
+						PositiveDelta: []int64{1, 2, 3, 4},
+					},
+				},
+			},
+		},
+		output: &Family{
+			Name: "histogram2",
+			Help: "",
+			Type: "HISTOGRAM",
+			Metrics: []interface{}{
+				Histogram{
+					Labels: map[string]string{
+						"tag1": "abc",
+						"tag2": "def",
+					},
+					Buckets: [][]interface{}{
+						{
+							uint64(0),
+							"0.7071067811865475",
+							"1",
+							"1",
+						},
+						{
+							uint64(0),
+							"1",
+							"1.414213562373095",
+							"3",
+						},
+						{
+							uint64(0),
+							"1.414213562373095",
+							"2",
+							"6",
+						},
+						{
+							uint64(0),
+							"2.82842712474619",
+							"4",
+							"10",
+						},
+					},
+					Count: "10",
+					Sum:   "123.45",
+				},
+			},
+		},
+	},
 }
 
 func TestConvertToMetricFamily(t *testing.T) {
@@ -240,7 +307,11 @@ func uintPtr(u uint64) *uint64 {
 	return &u
 }
 
-func intPtr(i int64) *int64 {
+func int32Ptr(i int32) *int32 {
+	return &i
+}
+
+func int64Ptr(i int64) *int64 {
 	return &i
 }
 
@@ -262,5 +333,12 @@ func createBucket(bound float64, count uint64) *dto.Bucket {
 	return &dto.Bucket{
 		UpperBound:      &bound,
 		CumulativeCount: &count,
+	}
+}
+
+func createBucketSpan(offset int32, length uint32) *dto.BucketSpan {
+	return &dto.BucketSpan{
+		Offset: &offset,
+		Length: &length,
 	}
 }

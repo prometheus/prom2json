@@ -23,6 +23,7 @@ import (
 	"github.com/prometheus/common/expfmt"
 
 	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/prom2json/histogram"
 )
 
 const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
@@ -56,7 +57,7 @@ type Summary struct {
 type Histogram struct {
 	Labels      map[string]string `json:"labels,omitempty"`
 	TimestampMs string            `json:"timestamp_ms,omitempty"`
-	Buckets     map[string]string `json:"buckets,omitempty"`
+	Buckets     interface{}       `json:"buckets,omitempty"`
 	Count       string            `json:"count"`
 	Sum         string            `json:"sum"`
 }
@@ -81,13 +82,7 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 				Sum:         fmt.Sprint(m.GetSummary().GetSampleSum()),
 			}
 		case dto.MetricType_HISTOGRAM:
-			mf.Metrics[i] = Histogram{
-				Labels:      makeLabels(m),
-				TimestampMs: makeTimestamp(m),
-				Buckets:     makeBuckets(m),
-				Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
-				Sum:         fmt.Sprint(m.GetHistogram().GetSampleSum()),
-			}
+			mf.Metrics[i] = makeHistogram(m)
 		default:
 			mf.Metrics[i] = Metric{
 				Labels:      makeLabels(m),
@@ -110,6 +105,27 @@ func getValue(m *dto.Metric) float64 {
 	default:
 		return 0.
 	}
+}
+
+func makeHistogram(m *dto.Metric) Histogram {
+	hist := Histogram{
+		Labels:      makeLabels(m),
+		TimestampMs: makeTimestamp(m),
+		Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
+		Sum:         fmt.Sprint(m.GetHistogram().GetSampleSum()),
+	}
+	if b := makeBuckets(m); len(b) > 0 {
+		hist.Buckets = b
+	} else {
+		h, fh := histogram.NewModelHistogram(m.GetHistogram())
+		if h == nil {
+			// float histogram
+			hist.Buckets = histogram.BucketsAsJson[float64](histogram.GetAPIFloatBuckets(fh))
+		} else {
+			hist.Buckets = histogram.BucketsAsJson[uint64](histogram.GetAPIBuckets(h))
+		}
+	}
+	return hist
 }
 
 func makeLabels(m *dto.Metric) map[string]string {

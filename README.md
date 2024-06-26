@@ -82,6 +82,9 @@ Example input from stdin:
 Note that all numbers are encoded as strings. Some parsers want it
 that way. Also, Prometheus allows sample values like `NaN` or `+Inf`,
 which cannot be encoded as JSON numbers.
+Native histograms are formated similarly as [the query 
+API](https://prometheus.io/docs/prometheus/latest/querying/api/#native-histograms) 
+would return.
 
 ```json
 [
@@ -127,6 +130,40 @@ which cannot be encoded as JSON numbers.
     "metrics": [
       {
         "value": "1063110"
+      }
+    ]
+  },
+  {
+    "name": "http_request_duration_seconds",
+    "type": "HISTOGRAM",
+    "help": "More HTTP request latencies in seconds.",
+    "metrics": [
+      {
+        "labels": {
+        "method": "GET",
+        },
+        "buckets": [
+          [
+            0,
+            "17.448123722644123",
+            "19.027313840043536",
+            "139"
+          ],
+          [
+            0,
+            "19.027313840043536",
+            "20.749432874416154",
+            "85"
+          ],
+          [
+            0,
+            "20.749432874416154",
+            "22.62741699796952",
+            "70"
+          ],
+        ],
+        "count": "1000",
+        "sum": "29969.50000000001"
       }
     ]
   }

@@ -9,6 +9,13 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.4.0 / 2024-07-11
+
+* [FEATURE] Support native histograms. #169
+* [FEATURE] Support float histograms (classic and native). #176
+
+_This release also comes with updated dependencies, and the pre-built binaries are using Go1.22.5., both to avoid potential security issues. (Note that this is just precaution. We do not know of any relevant vulnerabilities in v1.3.3.)_
+
 ## 1.3.3 / 2023-05-25
 
 _There are no code changes in this release. It merely comes with updated

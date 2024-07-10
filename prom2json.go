@@ -108,22 +108,24 @@ func getValue(m *dto.Metric) float64 {
 }
 
 func makeHistogram(m *dto.Metric) Histogram {
+	dtoH := m.GetHistogram()
 	hist := Histogram{
 		Labels:      makeLabels(m),
 		TimestampMs: makeTimestamp(m),
-		Count:       fmt.Sprint(m.GetHistogram().GetSampleCount()),
-		Sum:         fmt.Sprint(m.GetHistogram().GetSampleSum()),
+		Count:       fmt.Sprint(dtoH.GetSampleCount()),
+		Sum:         fmt.Sprint(dtoH.GetSampleSum()),
 	}
-	if b := makeBuckets(m); len(b) > 0 {
-		hist.Buckets = b
-	} else {
-		h, fh := histogram.NewModelHistogram(m.GetHistogram())
+	// A native histogram is marked by at least one span.
+	if len(dtoH.GetNegativeSpan())+len(dtoH.GetPositiveSpan()) > 0 {
+		h, fh := histogram.NewModelHistogram(dtoH)
 		if h == nil {
 			// float histogram
 			hist.Buckets = histogram.BucketsAsJson[float64](histogram.GetAPIFloatBuckets(fh))
 		} else {
 			hist.Buckets = histogram.BucketsAsJson[uint64](histogram.GetAPIBuckets(h))
 		}
+	} else {
+		hist.Buckets = makeBuckets(m)
 	}
 	return hist
 }

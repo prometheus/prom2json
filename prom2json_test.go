@@ -213,6 +213,51 @@ var tcs = []testCase{
 		},
 	},
 	testCase{
+		name: "test float histograms",
+		mFamily: &dto.MetricFamily{
+			Name: strPtr("histogram1"),
+			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
+			Metric: []*dto.Metric{
+				&dto.Metric{
+					// Test summary with NaN
+					Label: []*dto.LabelPair{
+						createLabelPair("tag1", "abc"),
+						createLabelPair("tag2", "def"),
+					},
+					Histogram: &dto.Histogram{
+						SampleCountFloat: floatPtr(1),
+						SampleSum:        floatPtr(2),
+						Bucket: []*dto.Bucket{
+							createFloatBucket(250000, 3),
+							createFloatBucket(500000, 4),
+							createFloatBucket(1e+06, 5),
+						},
+					},
+				},
+			},
+		},
+		output: &Family{
+			Name: "histogram1",
+			Help: "",
+			Type: "HISTOGRAM",
+			Metrics: []interface{}{
+				Histogram{
+					Labels: map[string]string{
+						"tag1": "abc",
+						"tag2": "def",
+					},
+					Buckets: map[string]string{
+						"250000": "3",
+						"500000": "4",
+						"1e+06":  "5",
+					},
+					Count: "1",
+					Sum:   "2",
+				},
+			},
+		},
+	},
+	testCase{
 		name: "test native histograms",
 		mFamily: &dto.MetricFamily{
 			Name: strPtr("histogram2"),
@@ -233,6 +278,73 @@ var tcs = []testCase{
 							createBucketSpan(1, 1),
 						},
 						PositiveDelta: []int64{1, 2, 3, 4},
+					},
+				},
+			},
+		},
+		output: &Family{
+			Name: "histogram2",
+			Help: "",
+			Type: "HISTOGRAM",
+			Metrics: []interface{}{
+				Histogram{
+					Labels: map[string]string{
+						"tag1": "abc",
+						"tag2": "def",
+					},
+					Buckets: [][]interface{}{
+						{
+							uint64(0),
+							"0.7071067811865475",
+							"1",
+							"1",
+						},
+						{
+							uint64(0),
+							"1",
+							"1.414213562373095",
+							"3",
+						},
+						{
+							uint64(0),
+							"1.414213562373095",
+							"2",
+							"6",
+						},
+						{
+							uint64(0),
+							"2.82842712474619",
+							"4",
+							"10",
+						},
+					},
+					Count: "10",
+					Sum:   "123.45",
+				},
+			},
+		},
+	},
+	testCase{
+		name: "test native float histograms",
+		mFamily: &dto.MetricFamily{
+			Name: strPtr("histogram2"),
+			Type: metricTypePtr(dto.MetricType_HISTOGRAM),
+			Metric: []*dto.Metric{
+				&dto.Metric{
+					// Test summary with NaN
+					Label: []*dto.LabelPair{
+						createLabelPair("tag1", "abc"),
+						createLabelPair("tag2", "def"),
+					},
+					Histogram: &dto.Histogram{
+						SampleCountFloat: floatPtr(10),
+						SampleSum:        floatPtr(123.45),
+						Schema:           int32Ptr(1),
+						PositiveSpan: []*dto.BucketSpan{
+							createBucketSpan(0, 3),
+							createBucketSpan(1, 1),
+						},
+						PositiveCount: []float64{1, 3, 6, 10},
 					},
 				},
 			},
@@ -333,6 +445,13 @@ func createBucket(bound float64, count uint64) *dto.Bucket {
 	return &dto.Bucket{
 		UpperBound:      &bound,
 		CumulativeCount: &count,
+	}
+}
+
+func createFloatBucket(bound float64, count float64) *dto.Bucket {
+	return &dto.Bucket{
+		UpperBound:           &bound,
+		CumulativeCountFloat: &count,
 	}
 }
 

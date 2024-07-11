@@ -112,7 +112,6 @@ func makeHistogram(m *dto.Metric) Histogram {
 	hist := Histogram{
 		Labels:      makeLabels(m),
 		TimestampMs: makeTimestamp(m),
-		Count:       fmt.Sprint(dtoH.GetSampleCount()),
 		Sum:         fmt.Sprint(dtoH.GetSampleSum()),
 	}
 	// A native histogram is marked by at least one span.
@@ -121,11 +120,14 @@ func makeHistogram(m *dto.Metric) Histogram {
 		if h == nil {
 			// float histogram
 			hist.Buckets = histogram.BucketsAsJson[float64](histogram.GetAPIFloatBuckets(fh))
+			hist.Count = fmt.Sprint(fh.Count)
 		} else {
 			hist.Buckets = histogram.BucketsAsJson[uint64](histogram.GetAPIBuckets(h))
+			hist.Count = fmt.Sprint(h.Count)
 		}
 	} else {
 		hist.Buckets = makeBuckets(m)
+		hist.Count = fmt.Sprint(dtoH.GetSampleCount())
 	}
 	return hist
 }

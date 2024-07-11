@@ -127,7 +127,11 @@ func makeHistogram(m *dto.Metric) Histogram {
 		}
 	} else {
 		hist.Buckets = makeBuckets(m)
-		hist.Count = fmt.Sprint(dtoH.GetSampleCount())
+		if count := dtoH.GetSampleCountFloat(); count > 0 {
+			hist.Count = fmt.Sprint(count)
+		} else {
+			hist.Count = fmt.Sprint(dtoH.GetSampleCount())
+		}
 	}
 	return hist
 }
@@ -158,7 +162,11 @@ func makeQuantiles(m *dto.Metric) map[string]string {
 func makeBuckets(m *dto.Metric) map[string]string {
 	result := map[string]string{}
 	for _, b := range m.GetHistogram().Bucket {
-		result[fmt.Sprint(b.GetUpperBound())] = fmt.Sprint(b.GetCumulativeCount())
+		if count := b.GetCumulativeCountFloat(); count > 0 {
+			result[fmt.Sprint(b.GetUpperBound())] = fmt.Sprint(count)
+		} else {
+			result[fmt.Sprint(b.GetUpperBound())] = fmt.Sprint(b.GetCumulativeCount())
+		}
 	}
 	return result
 }

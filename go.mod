@@ -1,13 +1,15 @@
 module github.com/prometheus/prom2json
 
-go 1.21
+go 1.21.0
+
+toolchain go1.23.0
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.1
-	github.com/prometheus/common v0.57.0
-	github.com/prometheus/prometheus v0.53.1
+	github.com/prometheus/common v0.59.1
+	github.com/prometheus/prometheus v0.54.1
 )
 
 require (

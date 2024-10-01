@@ -179,14 +179,14 @@ func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		close(ch)
-		return fmt.Errorf("creating GET request for URL %q failed: %v", url, err)
+		return fmt.Errorf("creating GET request for URL %q failed: %w", url, err)
 	}
 	req.Header.Add("Accept", acceptHeader)
 	client := http.Client{Transport: transport}
 	resp, err := client.Do(req)
 	if err != nil {
 		close(ch)
-		return fmt.Errorf("executing GET request for URL %q failed: %v", url, err)
+		return fmt.Errorf("executing GET request for URL %q failed: %w", url, err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -211,7 +211,7 @@ func ParseResponse(resp *http.Response, ch chan<- *dto.MetricFamily) error {
 				if err == io.EOF {
 					break
 				}
-				return fmt.Errorf("reading metric family protocol buffer failed: %v", err)
+				return fmt.Errorf("reading metric family protocol buffer failed: %w", err)
 			}
 			ch <- mf
 		}

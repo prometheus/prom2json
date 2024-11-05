@@ -1,7 +1,6 @@
 module github.com/prometheus/prom2json
 
 go 1.21.0
-
 toolchain go1.23.0
 
 require (
@@ -9,7 +8,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.60.1
-	github.com/prometheus/prometheus v0.54.1
+	github.com/prometheus/prometheus v0.55.0
 )
 
 require (

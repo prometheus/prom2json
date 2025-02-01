@@ -1,7 +1,6 @@
 module github.com/prometheus/prom2json
 
 go 1.22.0
-
 toolchain go1.23.0
 
 require (
@@ -9,11 +8,11 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.61.0
-	github.com/prometheus/prometheus v0.300.1
+	github.com/prometheus/prometheus v0.301.0
 )
 
 require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	google.golang.org/protobuf v1.35.2 // indirect
+	google.golang.org/protobuf v1.36.0 // indirect
 )

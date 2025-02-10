@@ -15,8 +15,8 @@ github.com/prometheus/client_model v0.6.1 h1:ZKSh/rekM+n3CeS952MLRAdFwIKqeY8b62p
 github.com/prometheus/client_model v0.6.1/go.mod h1:OrxVMOVHjw3lKMa8+x6HeMGkHMQyHDk9E3jmP2AmGiY=
 github.com/prometheus/common v0.62.0 h1:xasJaQlnWAeyHdUBeGjXmutelfJHWMRr+Fg4QszZ2Io=
 github.com/prometheus/common v0.62.0/go.mod h1:vyBcEuLSvWos9B1+CyL7JZ2up+uFzXhkqml0W5zIY1I=
-github.com/prometheus/prometheus v0.300.1 h1:9KKcTTq80gkzmXW0Et/QCFSrBPgmwiS3Hlcxc6o8KlM=
-github.com/prometheus/prometheus v0.300.1/go.mod h1:gtTPY/XVyCdqqnjA3NzDMb0/nc5H9hOu1RMame+gHyM=
+github.com/prometheus/prometheus v0.301.0 h1:0z8dgegmILivNomCd79RKvVkIols8vBGPKmcIBc7OyY=
+github.com/prometheus/prometheus v0.301.0/go.mod h1:BJLjWCKNfRfjp7Q48DrAjARnCi7GhfUVvUFEAWTssZM=
 github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
 github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

@@ -1,0 +1,9 @@
+version: "2"
+linters:
+  exclusions:
+    rules:
+      - linters:
+          - errcheck
+        # Taken from the default exclusions in v1.
+        text: Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*print(f|ln)?|os\.(Un)?Setenv). is not checked
+

@@ -8,7 +8,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.63.0
-	github.com/prometheus/prometheus v0.302.1
+	github.com/prometheus/prometheus v0.303.1
 )
 
 require (

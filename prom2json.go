@@ -31,10 +31,10 @@ const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client
 // Family mirrors the MetricFamily proto message.
 type Family struct {
 	//Time    time.Time
-	Name    string        `json:"name"`
-	Help    string        `json:"help"`
-	Type    string        `json:"type"`
-	Metrics []interface{} `json:"metrics,omitempty"` // Either metric or summary.
+	Name    string `json:"name"`
+	Help    string `json:"help"`
+	Type    string `json:"type"`
+	Metrics []any  `json:"metrics,omitempty"` // Either metric or summary.
 }
 
 // Metric is for all "single value" metrics, i.e. Counter, Gauge, and Untyped.
@@ -57,7 +57,7 @@ type Summary struct {
 type Histogram struct {
 	Labels      map[string]string `json:"labels,omitempty"`
 	TimestampMs string            `json:"timestamp_ms,omitempty"`
-	Buckets     interface{}       `json:"buckets,omitempty"`
+	Buckets     any               `json:"buckets,omitempty"`
 	Count       string            `json:"count"`
 	Sum         string            `json:"sum"`
 }
@@ -69,7 +69,7 @@ func NewFamily(dtoMF *dto.MetricFamily) *Family {
 		Name:    dtoMF.GetName(),
 		Help:    dtoMF.GetHelp(),
 		Type:    dtoMF.GetType().String(),
-		Metrics: make([]interface{}, len(dtoMF.Metric)),
+		Metrics: make([]any, len(dtoMF.Metric)),
 	}
 	for i, m := range dtoMF.Metric {
 		switch dtoMF.GetType() {

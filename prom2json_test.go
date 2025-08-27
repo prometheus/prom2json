@@ -87,7 +87,7 @@ var tcs = []testCase{
 			Name: "counter1",
 			Help: "",
 			Type: "COUNTER",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Metric{
 					Labels: map[string]string{
 						"tag2": "def",
@@ -150,7 +150,7 @@ var tcs = []testCase{
 			Name: "summary1",
 			Help: "",
 			Type: "SUMMARY",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Summary{
 					Labels: map[string]string{
 						"tag1": "abc",
@@ -195,7 +195,7 @@ var tcs = []testCase{
 			Name: "histogram1",
 			Help: "",
 			Type: "HISTOGRAM",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
@@ -240,7 +240,7 @@ var tcs = []testCase{
 			Name: "histogram1",
 			Help: "",
 			Type: "HISTOGRAM",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
@@ -286,13 +286,13 @@ var tcs = []testCase{
 			Name: "histogram2",
 			Help: "",
 			Type: "HISTOGRAM",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
 					},
-					Buckets: [][]interface{}{
+					Buckets: [][]any{
 						{
 							uint64(0),
 							"0.7071067811865475",
@@ -353,13 +353,13 @@ var tcs = []testCase{
 			Name: "histogram2",
 			Help: "",
 			Type: "HISTOGRAM",
-			Metrics: []interface{}{
+			Metrics: []any{
 				Histogram{
 					Labels: map[string]string{
 						"tag1": "abc",
 						"tag2": "def",
 					},
-					Buckets: [][]interface{}{
+					Buckets: [][]any{
 						{
 							uint64(0),
 							"0.7071067811865475",

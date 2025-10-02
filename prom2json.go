@@ -27,7 +27,15 @@ import (
 	"github.com/prometheus/prom2json/histogram"
 )
 
-const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
+const (
+	acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=1.0.0;q=0.2,text/plain;version=0.0.4;q=0.1`
+	// acceptHeaderTemplate takes the escaping scheme as its single
+	// parameter. Note that we even add the parameter to
+	// text/plain;version=0.0.4. This version officially does not support
+	// escaping scheme selection, but some targets implement it anyway, so
+	// no harm in trying.
+	acceptHeaderTemplate = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;escaping=%[1]s;q=0.7,text/plain;version=1.0.0;escaping=%[1]s;q=0.2,text/plain;version=0.0.4;escaping=%[1]s;q=0.1`
+)
 
 // Family mirrors the MetricFamily proto message.
 type Family struct {
@@ -177,12 +185,23 @@ func makeBuckets(m *dto.Metric) map[string]string {
 // returns after all MetricFamilies have been sent. The provided transport
 // may be nil (in which case the default Transport is used).
 func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper) error {
+	return FetchMetricFamiliesWithEscapingScheme(url, ch, transport, "")
+}
+
+// FetchMetricFamiliesWithEscapingScheme works like FetchMetricFamilies but adds
+// the provided string as the value of the additional 'escaping' parameter in
+// the accept header.
+func FetchMetricFamiliesWithEscapingScheme(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper, escapingScheme string) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		close(ch)
 		return fmt.Errorf("creating GET request for URL %q failed: %w", url, err)
 	}
-	req.Header.Add("Accept", acceptHeader)
+	if escapingScheme != "" {
+		req.Header.Add("Accept", fmt.Sprintf(acceptHeaderTemplate, escapingScheme))
+	} else {
+		req.Header.Add("Accept", acceptHeader)
+	}
 	client := http.Client{Transport: transport}
 	resp, err := client.Do(req)
 	if err != nil {

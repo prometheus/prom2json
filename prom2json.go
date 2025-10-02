@@ -27,7 +27,10 @@ import (
 	"github.com/prometheus/prom2json/histogram"
 )
 
-const acceptHeader = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
+const (
+	acceptHeaderLegacy = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;q=0.7,text/plain;version=0.0.4;q=0.3`
+	acceptHeaderUTF8   = `application/vnd.google.protobuf;proto=io.prometheus.client.MetricFamily;encoding=delimited;escaping=allow-utf-8;q=0.7,text/plain;version=0.0.4;escaping=allow-utf-8;q=0.3`
+)
 
 // Family mirrors the MetricFamily proto message.
 type Family struct {
@@ -177,12 +180,27 @@ func makeBuckets(m *dto.Metric) map[string]string {
 // returns after all MetricFamilies have been sent. The provided transport
 // may be nil (in which case the default Transport is used).
 func FetchMetricFamilies(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper) error {
+	return fetchMetricFamilies(url, ch, transport, false)
+}
+
+// FetchMetricFamiliesUTF8 works like FetchMetricFamilies but negotiates UTF-8
+// names.
+func FetchMetricFamiliesUTF8(url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper) error {
+	return fetchMetricFamilies(url, ch, transport, true)
+}
+
+func fetchMetricFamilies(
+	url string, ch chan<- *dto.MetricFamily, transport http.RoundTripper, negotiateUTF8 bool) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		close(ch)
 		return fmt.Errorf("creating GET request for URL %q failed: %w", url, err)
 	}
-	req.Header.Add("Accept", acceptHeader)
+	if negotiateUTF8 {
+		req.Header.Add("Accept", acceptHeaderUTF8)
+	} else {
+		req.Header.Add("Accept", acceptHeaderLegacy)
+	}
 	client := http.Client{Transport: transport}
 	resp, err := client.Do(req)
 	if err != nil {

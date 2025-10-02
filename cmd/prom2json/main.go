@@ -44,6 +44,8 @@ func main() {
 	cert := kingpin.Flag("cert", "client certificate file").String()
 	key := kingpin.Flag("key", "client certificate's key file").String()
 	skipServerCertCheck := kingpin.Flag("accept-invalid-cert", "Accept any certificate during TLS handshake. Insecure, use only for testing.").Bool()
+	negotiateUTF8 := kingpin.Flag("negotiate-utf-8", "During HTTP content negotiation, allow the target to use any UTF-8 characters in metric and label names. If not set, the target is supposed to escape non-standard characters. prom2json will accept all UTF-8 characters in any case.").Bool()
+
 	kingpin.CommandLine.UsageWriter(os.Stderr)
 	kingpin.Version(version.Print("prom2json"))
 	kingpin.HelpFlag.Short('h')
@@ -88,7 +90,12 @@ func main() {
 			os.Exit(1)
 		}
 		go func() {
-			err := prom2json.FetchMetricFamilies(*arg, mfChan, transport)
+			var err error
+			if *negotiateUTF8 {
+				err = prom2json.FetchMetricFamiliesUTF8(*arg, mfChan, transport)
+			} else {
+				err = prom2json.FetchMetricFamilies(*arg, mfChan, transport)
+			}
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)

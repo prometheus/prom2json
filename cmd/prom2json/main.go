@@ -41,9 +41,18 @@ Examples:
 `
 
 func main() {
-	cert := kingpin.Flag("cert", "client certificate file").String()
-	key := kingpin.Flag("key", "client certificate's key file").String()
+	cert := kingpin.Flag("cert", "client certificate file").PlaceHolder("FILE").String()
+	key := kingpin.Flag("key", "client certificate's key file").PlaceHolder("FILE").String()
 	skipServerCertCheck := kingpin.Flag("accept-invalid-cert", "Accept any certificate during TLS handshake. Insecure, use only for testing.").Bool()
+	escapingScheme := kingpin.Flag("escaping", "Sets an escaping scheme in content negotiation. Use 'allow-utf-8' for full UTF-8 character support.").
+		PlaceHolder("SCHEME").
+		Enum(
+			"allow-utf-8",
+			"underscores",
+			"dots",
+			"values",
+		)
+
 	kingpin.CommandLine.UsageWriter(os.Stderr)
 	kingpin.Version(version.Print("prom2json"))
 	kingpin.HelpFlag.Short('h')
@@ -88,8 +97,7 @@ func main() {
 			os.Exit(1)
 		}
 		go func() {
-			err := prom2json.FetchMetricFamilies(*arg, mfChan, transport)
-			if err != nil {
+			if err := prom2json.FetchMetricFamiliesWithEscapingScheme(*arg, mfChan, transport, *escapingScheme); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}

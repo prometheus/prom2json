@@ -9,6 +9,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.5.0 / 2025-10-14
+
+* [FEATURE] Add `--escaping` command line flag to negotiate escaping schemes including full UTF-8 support for metric and label names. #240
+* [ENHANCEMENT] Add `--help` and `--version` command line flags. #219
+
 ## 1.4.2 / 2025-04-09
 
 * [BUGFIX] Fix formatting of error messages. #190

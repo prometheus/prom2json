@@ -10,7 +10,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.67.2
-	github.com/prometheus/prometheus v0.307.0
+	github.com/prometheus/prometheus v0.307.3
 )
 
 require (

@@ -1,8 +1,6 @@
 module github.com/prometheus/prom2json
 
-go 1.24.0
-
-toolchain go1.24.4
+go 1.24.9
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -10,7 +8,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.67.5
-	github.com/prometheus/prometheus v0.308.1
+	github.com/prometheus/prometheus v0.309.1
 )
 
 require (

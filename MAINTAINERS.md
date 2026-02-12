@@ -1,1 +1,1 @@
-* Björn Rabenstein <beorn@grafana.com> @beorn7
+* Bartłomiej Płotka <bwplotka@gmail.com>  @bwplotka

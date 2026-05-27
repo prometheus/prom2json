@@ -84,7 +84,7 @@ that way. Also, Prometheus allows sample values like `NaN` or `+Inf`,
 which cannot be encoded as JSON numbers.
 
 A histogram is formatted as a native histogram if it has at least one span. It
-is then formatted in a similar way as [the Prometehus query
+is then formatted in a similar way as [the Prometheus query
 API](https://prometheus.io/docs/prometheus/latest/querying/api/#native-histograms)
 does it.
 

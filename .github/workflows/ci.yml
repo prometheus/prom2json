@@ -47,6 +47,8 @@ jobs:
   publish_default:
     name: Publish default branch artifacts
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     needs: [test_go, build]
     if: |
       (github.event_name == 'push' && github.event.ref == 'refs/heads/main')
@@ -60,12 +62,16 @@ jobs:
         with:
           docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
           docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          ghcr_io_password: ${{ github.token }}
           quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
           quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
 
   publish_release:
     name: Publish release artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     needs: [test_go, build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -76,6 +82,7 @@ jobs:
         with:
           docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
           docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          ghcr_io_password: ${{ github.token }}
           quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
           quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
-          github_token: ${{ secrets.PROMBOT_GITHUB_TOKEN }}
+          github_token: ${{ github.token }}

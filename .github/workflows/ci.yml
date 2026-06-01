@@ -1,0 +1,88 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main, master, 'release-*']
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  test_go:
+    name: Go tests
+    runs-on: ubuntu-latest
+    container:
+      # Whenever the Go version is updated here, .promu.yml should also be updated.
+      image: quay.io/prometheus/golang-builder:1.25-base
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
+      - run: make SKIP_GOLANGCI_LINT=1
+      - run: git diff --exit-code
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: prom2json
+          path: prom2json
+          if-no-files-found: error
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        thread: [0, 1, 2]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: prometheus/promci/build@9c86752f3395e08c57719af549cc455d8e2c2514 # v0.7.0
+        with:
+          parallelism: 3
+          thread: ${{ matrix.thread }}
+
+  publish_default:
+    name: Publish default branch artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    needs: [test_go, build]
+    if: |
+      (github.event_name == 'push' && github.event.ref == 'refs/heads/main')
+      ||
+      (github.event_name == 'push' && github.event.ref == 'refs/heads/master')
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: prometheus/promci/publish_main@9c86752f3395e08c57719af549cc455d8e2c2514 # v0.7.0
+        with:
+          docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
+          docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          ghcr_io_password: ${{ github.token }}
+          quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
+          quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+  publish_release:
+    name: Publish release artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    needs: [test_go, build]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: prometheus/promci/publish_release@9c86752f3395e08c57719af549cc455d8e2c2514 # v0.7.0
+        with:
+          docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
+          docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          ghcr_io_password: ${{ github.token }}
+          quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
+          quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
+          github_token: ${{ github.token }}

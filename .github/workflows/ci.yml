@@ -23,22 +23,17 @@ jobs:
       - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
       - run: make SKIP_GOLANGCI_LINT=1
       - run: git diff --exit-code
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
-        with:
-          name: prom2json
-          path: prom2json
-          if-no-files-found: error
 
   build:
     name: Build
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        thread: [0, 1, 2]
+        thread: [0, 1, 2, 3]
     steps:
       - uses: prometheus/promci/build@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
         with:
-          parallelism: 3
+          parallelism: 4
           thread: ${{ matrix.thread }}
 
   publish_default:
@@ -54,10 +49,8 @@ jobs:
     steps:
       - uses: prometheus/promci/publish_main@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
         with:
-          docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
           docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           ghcr_io_password: ${{ github.token }}
-          quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
           quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
 
   publish_release:
@@ -71,9 +64,7 @@ jobs:
     steps:
       - uses: prometheus/promci/publish_release@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
         with:
-          docker_hub_login: ${{ secrets.DOCKER_HUB_LOGIN }}
           docker_hub_password: ${{ secrets.DOCKER_HUB_PASSWORD }}
           ghcr_io_password: ${{ github.token }}
-          quay_io_login: ${{ secrets.QUAY_IO_LOGIN }}
           quay_io_password: ${{ secrets.QUAY_IO_PASSWORD }}
           github_token: ${{ github.token }}

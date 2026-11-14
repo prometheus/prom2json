@@ -81,32 +81,30 @@ func main() {
 		}
 	}
 
-	mfChan := make(chan *dto.MetricFamily, 1024)
+	var produce func(chan<- *dto.MetricFamily) error
 	// Missing input means we are reading from an URL.
 	if input != nil {
-		go func() {
-			if err := prom2json.ParseReader(input, mfChan); err != nil {
-				fmt.Fprintln(os.Stderr, "error reading metrics:", err)
-				os.Exit(1)
+		produce = func(ch chan<- *dto.MetricFamily) error {
+			if err := prom2json.ParseReader(input, ch); err != nil {
+				return fmt.Errorf("error reading metrics: %w", err)
 			}
-		}()
+			return nil
+		}
 	} else {
 		transport, err := makeTransport(*cert, *key, *skipServerCertCheck)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		go func() {
-			if err := prom2json.FetchMetricFamiliesWithEscapingScheme(*arg, mfChan, transport, *escapingScheme); err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-		}()
+		produce = func(ch chan<- *dto.MetricFamily) error {
+			return prom2json.FetchMetricFamiliesWithEscapingScheme(*arg, ch, transport, *escapingScheme)
+		}
 	}
 
-	result := []*prom2json.Family{}
-	for mf := range mfChan {
-		result = append(result, prom2json.NewFamily(mf))
+	result, err := readFamilies(produce)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 	jsonText, err := json.Marshal(result)
 	if err != nil {
@@ -118,6 +116,28 @@ func main() {
 		os.Exit(1)
 	}
 	fmt.Println()
+}
+
+// readFamilies runs produce in its own goroutine and collects the metric
+// families it sends. produce closes the channel before it returns, even on
+// error, so the error has to be waited for explicitly. Otherwise the caller
+// could see a closed channel and print an empty result before the error
+// arrives.
+func readFamilies(produce func(chan<- *dto.MetricFamily) error) ([]*prom2json.Family, error) {
+	mfChan := make(chan *dto.MetricFamily, 1024)
+	errChan := make(chan error, 1)
+	go func() {
+		errChan <- produce(mfChan)
+	}()
+
+	result := []*prom2json.Family{}
+	for mf := range mfChan {
+		result = append(result, prom2json.NewFamily(mf))
+	}
+	if err := <-errChan; err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 func makeTransport(

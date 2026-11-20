@@ -1,14 +1,14 @@
 module github.com/prometheus/prom2json
 
-go 1.26.0
+go 1.26.7
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/matttproud/golang_protobuf_extensions v1.0.4
 	github.com/prometheus/client_model v0.6.3
-	github.com/prometheus/common v0.72.0
-	github.com/prometheus/prometheus v0.315.0
+	github.com/prometheus/common v0.74.0
+	github.com/prometheus/prometheus v0.316.0
 )
 
 require (
@@ -17,7 +17,8 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
-	golang.org/x/text v0.42.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
